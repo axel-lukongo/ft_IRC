@@ -43,21 +43,23 @@ int main(int argc, char const **argv)
 		exit(EXIT_FAILURE);
 	}
 
+	if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen))<0) //here i accepte the new connexion
+	{
+		perror("In accept");
+		exit(EXIT_FAILURE);
+	}
+
 	while(1)
 	{
 		printf("\n+++++++ Waiting for new connection ++++++++\n\n");
-		if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen))<0) //here i accepte the new connexion
-		{
-			perror("In accept");
-			exit(EXIT_FAILURE);
-		}
 		
 		char buffer[30000] = {0};
 		
 		valread = read( new_socket , buffer, 30000); //we read what we have in client socket
 		
+		
 		std::cout << buffer << std::endl;
-		write(new_socket , "Hello from server" , hello.size());
+		// write(new_socket , "Hello from server" , hello.size());
 	}
 }
 
