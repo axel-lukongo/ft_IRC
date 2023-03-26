@@ -69,7 +69,7 @@ while(1)
 
 	/*in this loop i watch if one of my client send something
 	so i going check them one by one*/
-	for (int i = 1; i <= _clients.size(); i++) {
+	for (size_t i = 1; i <= _clients.size(); i++) {
 		if (_fds[i].revents == POLLIN) { //here i check if on of my client try to do something
 			char buffer[30000] = {0};
 			//if we POLLIN but read return 0 it mean this client is disconnect
