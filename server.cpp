@@ -49,51 +49,61 @@ Server::Server(std::string argv): _addrlen(sizeof(_address))
 	infinit_loop();
 }
 
-
-
-void Server::infinit_loop(){
-while(1)
+int	Server::make_command(std::string buffer, int i)
 {
-	//this function it supposed to watch if we have any activity on our Server_fd
-	_watch_activity = poll(_fds, _clients.size() + 1, -1);
-	if (_watch_activity < 0) {
-		perror("poll failed");
-		exit(EXIT_FAILURE);
-	}
-	//POLLIN is a constant that allow us to watch if something trop to 
-	// communicate or interact with us
-	//here i check if someone try to interacte with my server
-	if (_fds[0].revents == POLLIN) {
-		new_client();
-	}
-
-	/*in this loop i watch if one of my client send something
-	so i going check them one by one*/
-	for (size_t i = 1; i <= _clients.size(); i++) {
-		if (_fds[i].revents == POLLIN) { //here i check if on of my client try to do something
-			char buffer[30000] = {0};
-			//if we POLLIN but read return 0 it mean this client is disconnect
-			if ((_valread = read(_fds[i].fd , buffer, 30000)) == 0) {
-				client_disconnected(i);
-				continue; /*(continute) it a keyword who allow us to jump directely
-				to the next iteration without to executate the continuation of the code*/ 
-			}
-
-			/*so we going to come down here only if the interact detecte
-			by POLLIN wasn't a disconnection of the client */
-
-			// Get client namename
-			if (_clients[i-1].name == "unknown") {
-				_clients[i-1].name = std::to_string(i)[0];
-				std::cout << "Client: " << _clients[i-1].name << " is connect\n";
-			}
-			//on pourra parser le message pour savoir si c'est une commande ici
-			//si buffer[0] == '/'
-			std::cout << _clients[i-1].name << ": " << buffer << std::endl;
-		}
-	}
+	//Get the first word of the buffer
+	std::string command = buffer.substr(0, buffer.find(" "));
+	//Get the second word of the buffer
+	std::string arg = buffer.substr(buffer.find(" ") + 1, buffer.size());
+	std::cout << "command: " << command << " arg: " << arg << std::endl;
+	return (0);
 }
 
+void Server::infinit_loop()
+{
+	while(1)
+	{
+		//this function it supposed to watch if we have any activity on our Server_fd
+		_watch_activity = poll(_fds, _clients.size() + 1, -1);
+		if (_watch_activity < 0)
+		{
+			perror("poll failed");
+			exit(EXIT_FAILURE);
+		}
+		//POLLIN is a constant that allow us to watch if something trop to 
+		// communicate or interact with us
+		//here i check if someone try to interacte with my server
+		if (_fds[0].revents == POLLIN) {
+			new_client();
+		}
+
+		/*in this loop i watch if one of my client send something
+		so i going check them one by one*/
+		for (size_t i = 1; i <= _clients.size(); i++) {
+			if (_fds[i].revents == POLLIN) { //here i check if on of my client try to do something
+				char buffer[30000] = {0};
+				//if we POLLIN but read return 0 it mean this client is disconnect
+				if ((_valread = read(_fds[i].fd , buffer, 30000)) == 0) {
+					client_disconnected(i);
+					continue; /*(continute) it a keyword who allow us to jump directely
+					to the next iteration without to executate the continuation of the code*/ 
+				}
+
+				/*so we going to come down here only if the interact detecte
+				by POLLIN wasn't a disconnection of the client */
+
+				// Get client namename
+				if (_clients[i-1].name == "unknown") {
+					_clients[i-1].name = std::to_string(i)[0];
+					std::cout << "Client: " << _clients[i-1].name << " is connect\n";
+				}
+				//on pourra parser le message pour savoir si c'est une commande ici
+				//si buffer[0] == '/'
+				make_command(buffer, i);
+				std::cout << _clients[i-1].name << ": " << buffer << std::endl;
+			}
+		}
+	}
 }
 
 
@@ -104,6 +114,15 @@ void Server::new_client(){
 		perror("In accept");
 		exit(EXIT_FAILURE);
 	}
+
+	// Choose the RPL_WELCOME reply code
+	int replyCode = 001;
+
+	// Craft the reply message
+	std::string replyMessage = ":localhost 001 ngobert :Welcome to the IRC server ircserv!\r\n";
+
+	// Send the message to the client
+	send(_new_socket, replyMessage.c_str(), replyMessage.length(), 0);
 
 	std::string name = "unknown";
 	Client client = { _new_socket, name };

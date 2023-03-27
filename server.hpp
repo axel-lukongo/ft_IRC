@@ -31,9 +31,8 @@ public:
 	void infinit_loop();
 	void new_client();
 	void client_disconnected(int);
+	int	 make_command(std::string buffer, int i);
 	~Server();
 };
-
-
 
 #endif // !SERVER_HPP
