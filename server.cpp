@@ -54,7 +54,7 @@ void	Server::SendMessage(int fd, std::string message)
 	send(fd, message.c_str(), message.size(), 0);
 }
 
-int	Server::make_command(std::string buffer, int i)
+int	Server::make_command(std::string buffer, int i) //! CHANGE THE NAME OF THE THIS FUNCTION SO THAT IT HANDLES ONLY REGISTRATION WHEN THE USER FIRST CONNECTS
 {
 	//Go through the line and find every command and its arguments and put the command and its arguments in the same vector and the next command and it's arguments in the next vector
 	std::vector<std::string> command;
@@ -91,13 +91,16 @@ int	Server::make_command(std::string buffer, int i)
 		}
 		command_split.push_back(tmp);
 		//Execute the command
-		if (command_split[0] == "PASS")
+		if (command_split[0] == "NICK")
 		{
-
-			std::cout << "[" << command_split[1].c_str() << "]" << std::endl;
+			_clients[i - 1].name = deleteFlags(command_split[1]);
+			std::cout << "ZOZOTTE" << std::endl;
+		}
+		else if (command_split[0] == "PASS")
+		{
 			if (command_split[1] == this->_pwd)
 			{
-				// _clients[i].is_registered = true;
+				_clients[i - 1].is_registered = true;
 				SendMessage(_clients[i - 1].fd, RPL_WELCOME(_clients[i - 1].name, _clients[i - 1].name));
 			}
 			else
@@ -105,11 +108,6 @@ int	Server::make_command(std::string buffer, int i)
 				std::cout << BLUE "[PASS TEST]"<< RESET << std::endl;
 				SendMessage(_clients[i - 1].fd, ERR_PASSWDMISMATCH(_clients[i - 1].name));
 			}
-		}
-		else if (command_split[0] == "NICK")
-		{
-			// _clients[i].name = command_split[1];
-			std::cout << "" << std::endl;
 		}
 	}
 	return (0);
@@ -180,7 +178,7 @@ void Server::new_client(){
 
 	std::string name = "unknown";
 	Client client = { _new_socket, name };
-	client.name = "";
+	client.name = "unknown";
 	client.nickname = "";
 	_clients.push_back(client);
 
@@ -195,7 +193,7 @@ void Server::client_disconnected(int i){
 	close(_fds[i].fd);
 	_clients.erase(_clients.begin() + (i - 1));
 	_fds[i].fd = -1;
-	std::cout << "Client " << _clients[i].name << "is disconnect";
+	std::cout << "Client " << _clients[i - 1].name << "is disconnect";
 }
 
 

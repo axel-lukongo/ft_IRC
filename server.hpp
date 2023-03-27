@@ -16,6 +16,7 @@
 #include "client.hpp"
 #include "response.hpp"
 #include "Colors.hpp"
+#include "utils.hpp"
 
 class Server
 {

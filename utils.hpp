@@ -1,23 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   response.hpp                                       :+:      :+:    :+:   */
+/*   utils.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ngobert <ngobert@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/03/27 14:27:00 by ngobert           #+#    #+#             */
-/*   Updated: 2023/03/27 16:20:47 by ngobert          ###   ########.fr       */
+/*   Created: 2023/03/27 16:00:38 by ngobert           #+#    #+#             */
+/*   Updated: 2023/03/27 16:01:26 by ngobert          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef RESPONSE_HPP
+#ifndef UTILS_HPP
 
-# define RESPONSE_HPP
+# define UTILS_HPP
 
-# define RPL_WELCOME(user_id, nickname) (":localhost 001 " + nickname + " :Welcome to the Internet Relay Network " + user_id + "\r\n")
+# include <iostream>
 
-//PASS
-# define ERR_PASSWDMISMATCH(client) (":localhost 464 " + client + " :Password incorrect.\r\n")
-
+std::string deleteFlags(std::string str);
 
 #endif
