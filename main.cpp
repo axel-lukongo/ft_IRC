@@ -15,8 +15,8 @@
 
 int main(int argc, char const **argv)
 {
-	if(argc != 2) //later we have to change by if(argc != 3)
+	if(argc != 3) //later we have to change by if(argc != 3)
 		std::cout << "!!server_IRC <port>!!\n";
 	else
-		Server Server(argv[1]);
+		Server Server(argv[1], argv[2]);
 }

@@ -1,7 +1,7 @@
 #include"server.hpp"
 
 
-Server::Server(std::string argv): _addrlen(sizeof(_address))
+Server::Server(std::string argv, std::string pwd): _addrlen(sizeof(_address)), _pwd(pwd)
 {
 	if ((_server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
 	{
@@ -44,18 +44,74 @@ Server::Server(std::string argv): _addrlen(sizeof(_address))
 		exit(EXIT_FAILURE);
 	}
 	_fds[0].fd = _server_fd; //the fd in index 0 is the socket of my server
-	_fds[0].events = POLLIN; 
+	_fds[0].events = POLLIN;
 
 	infinit_loop();
 }
 
+void	Server::SendMessage(int fd, std::string message)
+{
+	send(fd, message.c_str(), message.size(), 0);
+}
+
 int	Server::make_command(std::string buffer, int i)
 {
-	//Get the first word of the buffer
-	std::string command = buffer.substr(0, buffer.find(" "));
-	//Get the second word of the buffer
-	std::string arg = buffer.substr(buffer.find(" ") + 1, buffer.size());
-	std::cout << "command: " << command << " arg: " << arg << std::endl;
+	//Go through the line and find every command and its arguments and put the command and its arguments in the same vector and the next command and it's arguments in the next vector
+	std::vector<std::string> command;
+	std::string tmp;
+	for (size_t j = 0; j < buffer.size(); j++)
+	{
+		if (buffer[j] == '\n')
+		{
+			command.push_back(tmp);
+			tmp = "";
+		}
+		else
+			tmp += buffer[j];
+	}
+	command.push_back(tmp);
+	//Print the commands and their arguments
+	for (size_t j = 0; j < command.size(); j++)
+		std::cout << command[j] << std::endl;
+	//Execute the commands
+	for (size_t j = 0; j < command.size(); j++)
+	{
+		//Split the command and its arguments
+		std::vector<std::string> command_split;
+		std::string tmp;
+		for (size_t k = 0; k < command[j].size(); k++)
+		{
+			if (command[j][k] == ' ' || command[j][k] == '\r')
+			{
+				command_split.push_back(tmp);
+				tmp = "";
+			}
+			else
+				tmp += command[j][k];
+		}
+		command_split.push_back(tmp);
+		//Execute the command
+		if (command_split[0] == "PASS")
+		{
+
+			std::cout << "[" << command_split[1].c_str() << "]" << std::endl;
+			if (command_split[1] == this->_pwd)
+			{
+				// _clients[i].is_registered = true;
+				SendMessage(_clients[i - 1].fd, RPL_WELCOME(_clients[i - 1].name, _clients[i - 1].name));
+			}
+			else
+			{
+				std::cout << BLUE "[PASS TEST]"<< RESET << std::endl;
+				SendMessage(_clients[i - 1].fd, ERR_PASSWDMISMATCH(_clients[i - 1].name));
+			}
+		}
+		else if (command_split[0] == "NICK")
+		{
+			// _clients[i].name = command_split[1];
+			std::cout << "" << std::endl;
+		}
+	}
 	return (0);
 }
 
@@ -74,6 +130,7 @@ void Server::infinit_loop()
 		// communicate or interact with us
 		//here i check if someone try to interacte with my server
 		if (_fds[0].revents == POLLIN) {
+			std::cout << "new client\n" << std::endl;
 			new_client();
 		}
 
@@ -115,17 +172,16 @@ void Server::new_client(){
 		exit(EXIT_FAILURE);
 	}
 
-	// Choose the RPL_WELCOME reply code
-	int replyCode = 001;
-
 	// Craft the reply message
-	std::string replyMessage = ":localhost 001 ngobert :Welcome to the IRC server ircserv!\r\n";
+	// std::string replyMessage = ":localhost 001 ngobert :Welcome to the IRC server ircserv!\r\n";
 
 	// Send the message to the client
-	send(_new_socket, replyMessage.c_str(), replyMessage.length(), 0);
+	// send(_new_socket, replyMessage.c_str(), replyMessage.length(), 0);
 
 	std::string name = "unknown";
 	Client client = { _new_socket, name };
+	client.name = "";
+	client.nickname = "";
 	_clients.push_back(client);
 
 	_fds[_clients.size()].fd = _new_socket;

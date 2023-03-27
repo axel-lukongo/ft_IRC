@@ -14,10 +14,13 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include "client.hpp"
+#include "response.hpp"
+#include "Colors.hpp"
 
 class Server
 {
 private:
+	std::string _pwd;
 	int _server_fd, _new_socket;
 	long _valread;
 	struct sockaddr_in _address;
@@ -27,11 +30,12 @@ private:
 	int _watch_activity;
 
 public:
-	Server(std::string);
+	Server(std::string, std::string);
 	void infinit_loop();
 	void new_client();
 	void client_disconnected(int);
 	int	 make_command(std::string buffer, int i);
+	void	SendMessage(int fd, std::string message);
 	~Server();
 };
 

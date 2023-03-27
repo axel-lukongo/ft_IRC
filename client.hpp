@@ -7,6 +7,10 @@
 struct Client {
     int fd;
     std::string name;
+
+	std::string nickname;
+	bool is_registered = false;
+	std::string channel;
 };
 
 #endif // !CLIENT_HPP
