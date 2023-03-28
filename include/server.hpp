@@ -16,7 +16,7 @@
 #include "client.hpp"
 #include <signal.h>
 
-extern bool server_run;
+// extern bool server_run;
 
 class Server
 {

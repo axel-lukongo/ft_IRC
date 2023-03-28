@@ -52,7 +52,7 @@ Server::Server(std::string argv): _addrlen(sizeof(_address))
 
 
 void Server::infinit_loop(){
-while(server_run == true)
+while(1)
 {
 	//this function it supposed to watch if we have any activity on our Server_fd
 	_watch_activity = poll(_fds, _clients.size() + 1, -1);
