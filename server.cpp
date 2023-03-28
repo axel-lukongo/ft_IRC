@@ -95,9 +95,8 @@ int	Server::make_command(std::string buffer, int i) //! TOUT CA A REFAIRE PASSKE
 		if (command_split[0] == "NICK")
 		{
 			_clients[i - 1].old_name = _clients[i - 1].name;
-			_clients[i - 1].name = deleteFlags(command_split[1]);
+			_clients[i - 1].name = command_split[1];
 			SendMessage(_clients[i - 1].fd, RPL_NICK(_clients[i - 1].old_name, _clients[i - 1].name, _clients[i - 1].name));
-			std::cout << "ZOZOTTE" << std::endl;
 		}
 		else if (command_split[0] == "PASS")
 		{
