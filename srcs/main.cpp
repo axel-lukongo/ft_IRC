@@ -1,21 +1,17 @@
-#include <stdio.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <netinet/in.h>
-#include <string.h>
-#include <poll.h>
-#include "iostream"
-#include <vector>
-#include <algorithm>
-#include <cstring>
-#include <unistd.h>
-#include <arpa/inet.h>
+
 #include "../include/server.hpp"
 
+bool server_run = true;
+
+void signal_sigint(int sig){
+	(void) sig;
+	std::cout << "--------good bye---------\n";
+	server_run = false;
+}
 
 int main(int argc, char const **argv)
 {
+	signal(SIGINT, signal_sigint);
 	if(argc != 2) //later we have to change by if(argc != 3)
 		std::cout << "!!server_IRC <port>!!\n";
 	else

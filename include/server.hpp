@@ -14,6 +14,9 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include "client.hpp"
+#include <signal.h>
+
+extern bool server_run;
 
 class Server
 {
@@ -34,7 +37,6 @@ public:
 	void client_disconnected(int);
 	~Server();
 };
-
 
 
 #endif // !SERVER_HPP
