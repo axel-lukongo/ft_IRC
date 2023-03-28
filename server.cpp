@@ -54,7 +54,7 @@ void	Server::SendMessage(int fd, std::string message)
 	send(fd, message.c_str(), message.size(), 0);
 }
 
-int	Server::make_command(std::string buffer, int i) //! CHANGE THE NAME OF THE THIS FUNCTION SO THAT IT HANDLES ONLY REGISTRATION WHEN THE USER FIRST CONNECTS
+int	Server::make_command(std::string buffer, int i) //! TOUT CA A REFAIRE PASSKE C DEGUEU
 {
 	//Go through the line and find every command and its arguments and put the command and its arguments in the same vector and the next command and it's arguments in the next vector
 	std::vector<std::string> command;
@@ -69,6 +69,7 @@ int	Server::make_command(std::string buffer, int i) //! CHANGE THE NAME OF THE T
 		else
 			tmp += buffer[j];
 	}
+	tmp = deleteFlags(tmp);
 	command.push_back(tmp);
 	//Print the commands and their arguments
 	for (size_t j = 0; j < command.size(); j++)
@@ -93,7 +94,9 @@ int	Server::make_command(std::string buffer, int i) //! CHANGE THE NAME OF THE T
 		//Execute the command
 		if (command_split[0] == "NICK")
 		{
+			_clients[i - 1].old_name = _clients[i - 1].name;
 			_clients[i - 1].name = deleteFlags(command_split[1]);
+			SendMessage(_clients[i - 1].fd, RPL_NICK(_clients[i - 1].old_name, _clients[i - 1].name, _clients[i - 1].name));
 			std::cout << "ZOZOTTE" << std::endl;
 		}
 		else if (command_split[0] == "PASS")
@@ -109,6 +112,7 @@ int	Server::make_command(std::string buffer, int i) //! CHANGE THE NAME OF THE T
 				SendMessage(_clients[i - 1].fd, ERR_PASSWDMISMATCH(_clients[i - 1].name));
 			}
 		}
+		// else if (command_split[0] == "USER")
 	}
 	return (0);
 }

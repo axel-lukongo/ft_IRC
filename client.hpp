@@ -7,6 +7,7 @@
 struct Client {
     int fd;
     std::string name;
+	std::string old_name;
 
 	std::string nickname;
 	bool is_registered = false;
