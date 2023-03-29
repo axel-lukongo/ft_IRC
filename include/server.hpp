@@ -29,6 +29,7 @@ private:
 	int _addrlen;
 	std::vector<Client> _clients;
 	int _watch_activity;
+	int _nb;
 
 public:
 	Server(std::string);

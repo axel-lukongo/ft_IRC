@@ -1,7 +1,7 @@
 #include "../include/server.hpp"
 
 
-Server::Server(std::string argv): _addrlen(sizeof(_address))
+Server::Server(std::string argv): _addrlen(sizeof(_address)), _nb(0)
 {
 	if ((_server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
 	{
@@ -45,7 +45,7 @@ Server::Server(std::string argv): _addrlen(sizeof(_address))
 	}
 	_fds[0].fd = _server_fd; //the fd in index 0 is the socket of my server
 	_fds[0].events = POLLIN; 
-
+	_nb++;
 	infinit_loop();
 }
 
@@ -65,6 +65,8 @@ while(1)
 	//here i check if someone try to interacte with my server
 	if (_fds[0].revents == POLLIN) {
 		new_client();
+		// std::cout << "------ " << _clients[0].name << std::endl;
+		_nb++;
 		continue;
 	}
 
@@ -109,8 +111,10 @@ void Server::new_client(){
 		exit(EXIT_FAILURE);
 	}
 
-	std::string name = "unknown";
-	Client client = { _new_socket, name };
+	std::stringstream int_to_str;
+	int_to_str << _nb;
+	std::string the_name = int_to_str.str();
+	Client client = { _new_socket, the_name };
 	_clients.push_back(client);
 
 	_fds[_clients.size()].fd = _new_socket;
@@ -121,11 +125,11 @@ void Server::new_client(){
 
 
 void Server::client_disconnected(int i){
-	int tmp = _fds[i].fd;
 	close(_fds[i].fd);
-	_clients.erase(_clients.begin() + (i - 1));
-	_fds[i].fd = -1;
-	std::cout << "Client " << _clients[i].name << "is disconnect";
+	_clients.erase(_clients.begin() + i );
+	_fds[i].fd = 0;
+	std::cout << "Client " << _clients[i-1].name << " is disconnect \n\n";
+
 }
 
 bool Server::is_commande(std::string buffer){

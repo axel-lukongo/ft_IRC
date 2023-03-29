@@ -1,13 +1,8 @@
 #include<map>
 #include <iostream>
-#include <string>
+#include <string.h>
 #include <vector>
 int main(int argc, char **av){
-	std::vector<std::string> test;
-	test.push_back("je suis 5");
-	test.push_back("je suis 4");
-	test.push_back("je suis 1");
-	test.push_back("je suis 2");
-	test.push_back("je suis 8");
-	test.find(av[1]);
+	std::string salut = "yoo";
+	std::cout << salut << std::endl;
 }
