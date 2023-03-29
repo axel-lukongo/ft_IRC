@@ -6,10 +6,11 @@
 
 struct Client {
     int fd;
+	std::string nickname;
     std::string name;
 	std::string old_name;
+	std::string old_nickname;
 
-	std::string nickname;
 	bool is_registered;
 	std::string channel;
 };

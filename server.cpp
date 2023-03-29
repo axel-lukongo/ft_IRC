@@ -94,26 +94,26 @@ int	Server::make_command(std::string buffer, int i) //! TOUT CA A REFAIRE PASSKE
 		//Execute the command
 		if (command_split[0] == "NICK")
 		{
-			_clients[i - 1].old_name = _clients[i - 1].name;
-			_clients[i - 1].name = command_split[1];
-			SendMessage(_clients[i - 1].fd, RPL_NICK(_clients[i - 1].old_name, _clients[i - 1].name, _clients[i - 1].name));
+			_clients[i - 1].old_nickname = _clients[i - 1].nickname;
+			_clients[i - 1].nickname = command_split[1];
+			SendMessage(_clients[i - 1].fd, RPL_NICK(_clients[i - 1].old_nickname, _clients[i - 1].nickname, _clients[i - 1].nickname));
 		}
 		else if (command_split[0] == "PASS")
 		{
 			if (command_split[1] == this->_pwd)
 			{
 				_clients[i - 1].is_registered = true;
-				SendMessage(_clients[i - 1].fd, RPL_WELCOME(_clients[i - 1].name, _clients[i - 1].name));
+				SendMessage(_clients[i - 1].fd, RPL_WELCOME(_clients[i - 1].nickname, _clients[i - 1].nickname));
 			}
 			else
 			{
 				std::cout << BLUE "[PASS TEST]"<< RESET << std::endl;
-				SendMessage(_clients[i - 1].fd, ERR_PASSWDMISMATCH(_clients[i - 1].name));
+				SendMessage(_clients[i - 1].fd, ERR_PASSWDMISMATCH(_clients[i - 1].nickname));
 			}
 		}
 		else if (command_split[0] == "USER")
 		{
-			
+
 		}
 	}
 	return (0);
@@ -154,14 +154,14 @@ void Server::infinit_loop()
 				by POLLIN wasn't a disconnection of the client */
 
 				// Get client namename
-				if (_clients[i-1].name == "unknown") {
-					_clients[i-1].name = std::to_string(i)[0];
-					std::cout << "Client: " << _clients[i-1].name << " is connect\n";
+				if (_clients[i-1].nickname == "unknown") {
+					_clients[i-1].nickname = std::to_string(i)[0];
+					std::cout << "Client: " << _clients[i-1].nickname << " is connect\n";
 				}
 				//on pourra parser le message pour savoir si c'est une commande ici
 				//si buffer[0] == '/'
 				make_command(buffer, i);
-				std::cout << _clients[i-1].name << ": " << buffer << std::endl;
+				std::cout << _clients[i-1].nickname << ": " << buffer << std::endl;
 			}
 		}
 	}
@@ -184,8 +184,8 @@ void Server::new_client(){
 
 	std::string name = "unknown";
 	Client client = { _new_socket, name };
-	client.name = "unknown";
-	client.nickname = "";
+	client.nickname = "unknown";
+	client.name = "";
 	_clients.push_back(client);
 
 	_fds[_clients.size()].fd = _new_socket;
@@ -199,7 +199,7 @@ void Server::client_disconnected(int i){
 	close(_fds[i].fd);
 	_clients.erase(_clients.begin() + (i - 1));
 	_fds[i].fd = -1;
-	std::cout << "Client " << _clients[i - 1].name << "is disconnect";
+	std::cout << "Client " << _clients[i - 1].nickname << "is disconnect";
 }
 
 
