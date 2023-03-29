@@ -26,7 +26,7 @@ Server::Server(std::string argv): _addrlen(sizeof(_address))
 	//this variable it just the variable in my struct sockaddr_in
 	_address.sin_family = AF_INET;
 	_address.sin_addr.s_addr = INADDR_ANY;
-	_address.sin_port = htons(stoi(argv));
+	_address.sin_port = htons(atoi(argv.c_str()));
 
 	memset(_address.sin_zero, '\0', sizeof _address.sin_zero);
 
@@ -84,7 +84,9 @@ while(1)
 
 			// Get client namename
 			if (_clients[i-1].name == "unknown") {
-				_clients[i-1].name = std::to_string(i)[0];
+					std::stringstream int_to_str;
+					int_to_str << i;
+					_clients[i - 1].name = int_to_str.str();
 				std::cout << "Client: " << _clients[i-1].name << " is connect\n";
 			}
 			//on pourra parser le message pour savoir si c'est une commande ici

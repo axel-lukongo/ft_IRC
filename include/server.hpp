@@ -13,6 +13,7 @@
 #include <cstring>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <sstream>
 #include "client.hpp"
 #include <signal.h>
 
