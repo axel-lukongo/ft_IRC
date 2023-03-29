@@ -10,7 +10,7 @@ struct Client {
 	std::string old_name;
 
 	std::string nickname;
-	bool is_registered = false;
+	bool is_registered;
 	std::string channel;
 };
 

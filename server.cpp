@@ -111,7 +111,10 @@ int	Server::make_command(std::string buffer, int i) //! TOUT CA A REFAIRE PASSKE
 				SendMessage(_clients[i - 1].fd, ERR_PASSWDMISMATCH(_clients[i - 1].name));
 			}
 		}
-		// else if (command_split[0] == "USER")
+		else if (command_split[0] == "USER")
+		{
+			
+		}
 	}
 	return (0);
 }
