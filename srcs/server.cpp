@@ -31,7 +31,7 @@ Server::Server(std::string argv): _addrlen(sizeof(_address))
 	memset(_address.sin_zero, '\0', sizeof _address.sin_zero);
 
 	//we associate the socket with our address
-	if (bind(_server_fd, (struct sockaddr *)&_address, sizeof(_address))<0)
+	if (bind(_server_fd, (struct sockaddr *)&_address, sizeof(_address)) < 0)
 	{
 		perror("In bind");
 		exit(EXIT_FAILURE);
@@ -65,15 +65,16 @@ while(1)
 	//here i check if someone try to interacte with my server
 	if (_fds[0].revents == POLLIN) {
 		new_client();
+		continue;
 	}
 
 	/*in this loop i watch if one of my client send something
 	so i going check them one by one*/
 	for (size_t i = 1; i <= _clients.size(); i++) {
 		if (_fds[i].revents == POLLIN) { //here i check if on of my client try to do something
-			char buffer[30000] = {0};
+			char buffer[512] = {0};
 			//if we POLLIN but read return 0 it mean this client is disconnect
-			if ((_valread = read(_fds[i].fd , buffer, 30000)) == 0) {
+			if ((_valread = recv(_fds[i].fd , buffer, 512, 0)) == 0) {
 				client_disconnected(i);
 				continue; /*(continute) it a keyword who allow us to jump directely
 				to the next iteration without to executate the continuation of the code*/ 
@@ -120,6 +121,7 @@ void Server::new_client(){
 
 
 void Server::client_disconnected(int i){
+	int tmp = _fds[i].fd;
 	close(_fds[i].fd);
 	_clients.erase(_clients.begin() + (i - 1));
 	_fds[i].fd = -1;
