@@ -18,6 +18,11 @@ struct Client {
 
 	bool is_registered;
 	std::string channel;
+
+	std::vector<std::string> channels_joined;
+	std::vector<std::string> channels_operated;
+	std::vector<std::string> channels_created;
+	std::vector<std::string> channels_banned;
 };
 
 #endif // !CLIENT_HPP

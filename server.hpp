@@ -41,6 +41,8 @@ public:
 	void	pass(int, std::vector<std::string>);
 	void	nick(int, std::vector<std::string>);
 	void	user(int, std::vector<std::string>);
+	void	join(int, std::vector<std::string>);
+	void	privmsg(int, std::vector<std::string>);
 	~Server();
 };
 
