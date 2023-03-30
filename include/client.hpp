@@ -24,6 +24,17 @@ struct Client {
 	std::vector<std::string> channels_operated;
 	std::vector<std::string> channels_created;
 	std::vector<std::string> channels_banned;
+	// public:
+	// 	std::string get_nickname(){
+	// 		return nickname;
+	// 	}
+	// 	std::string get_host(){
+	// 		return hostname;
+	// 	}
+	// 	int getFD(){
+	// 		return fd;
+	// 	}
+
 };
 
 #endif // !CLIENT_HPP

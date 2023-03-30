@@ -1,4 +1,5 @@
 #include "../include/server.hpp"
+#include "../include/the_include.hpp"
 
 //! ############### CONSTRUCTOR ####################
 
@@ -61,6 +62,7 @@ void	Server::SendMessage(int fd, std::string message)
 
 void Server::infinit_loop()
 {
+	std::cout << BLUE " ---------server is ready---------\n" << RESET;
 	while(1)
 	{
 		//this function it supposed to watch if we have any activity on our Server_fd

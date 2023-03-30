@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ngobert <ngobert@student.42.fr>            +#+  +:+       +#+        */
+/*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/27 14:27:00 by ngobert           #+#    #+#             */
-/*   Updated: 2023/03/30 11:21:24 by ngobert          ###   ########.fr       */
+/*   Updated: 2023/03/30 20:03:55 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,5 +36,10 @@
 
 // PRIVMSG
 # define RPL_PRIVMSG(client, channel, message) (":" + client + "!" + client + "@localhost PRIVMSG " + channel + " " + message + "\r\n")
+
+//PONG
+# define RPL_PONG(user_id, token) (user_id + " PONG " + token + "\r\n")
+// #define PONG(user) (":" + user->getHost() + " PONG :" + user->getNick() + "\r\n")
+#define ERR_NEEDMOREPARAMS(user, command) (":" + (user)->getName() + " 461 " + (user)->getNick() + " " + (command) + " :Not enough parameters\r\n")
 
 #endif
