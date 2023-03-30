@@ -11,6 +11,11 @@ struct Client {
 	std::string old_name;
 	std::string old_nickname;
 
+	std::string username;
+	std::string hostname;
+	std::string servername;
+	std::string realname;
+
 	bool is_registered;
 	std::string channel;
 };

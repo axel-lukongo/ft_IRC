@@ -6,7 +6,7 @@
 /*   By: ngobert <ngobert@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/27 14:27:00 by ngobert           #+#    #+#             */
-/*   Updated: 2023/03/28 20:41:12 by ngobert          ###   ########.fr       */
+/*   Updated: 2023/03/29 15:41:29 by ngobert          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,5 +21,10 @@
 
 // NICK 
 # define RPL_NICK(oclient, uclient, client) (":" + oclient + "!" + uclient + "@localhost NICK " +  client + "\r\n")
+
+// USER
+# define RPL_YOURHOST(client, server) (":localhost 002 " + client + " :Your host is " + server + ", running version 0.1\r\n")
+# define RPL_CREATED(client, server) (":localhost 003 " + client + " :This server was created " + server + "\r\n")
+# define RPL_MYINFO(client, server, version, available) (":localhost 004 " + client + " " + server + " " + version + " " + available + "\r\n")
 
 #endif

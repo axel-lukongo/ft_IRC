@@ -37,6 +37,8 @@ public:
 	void client_disconnected(int);
 	int	 make_command(std::string buffer, int i);
 	void	SendMessage(int fd, std::string message);
+
+	void	pass(int, std::vector<std::string>);
 	~Server();
 };
 

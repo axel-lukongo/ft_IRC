@@ -54,6 +54,91 @@ void	Server::SendMessage(int fd, std::string message)
 	send(fd, message.c_str(), message.size(), 0);
 }
 
+// int	Server::make_command(std::string buffer, int i) //! TOUT CA A REFAIRE PASSKE C DEGUEU
+// {
+// 	//Go through the line and find every command and its arguments and put the command and its arguments in the same vector and the next command and it's arguments in the next vector
+// 	std::vector<std::string> command;
+// 	std::string tmp;
+// 	for (size_t j = 0; j < buffer.size(); j++)
+// 	{
+// 		if (buffer[j] == '\n')
+// 		{
+// 			command.push_back(tmp);
+// 			tmp = "";
+// 		}
+// 		else
+// 			tmp += buffer[j];
+// 	}
+// 	tmp = deleteFlags(tmp);
+// 	command.push_back(tmp);
+// 	//Print the commands and their arguments
+// 	for (size_t j = 0; j < command.size(); j++)
+// 		std::cout << command[j] << std::endl;
+// 	//Execute the commands
+// 	for (size_t j = 0; j < command.size(); j++)
+// 	{
+// 		//Split the command and its arguments
+// 		std::vector<std::string> command_split;
+// 		std::string tmp;
+// 		for (size_t k = 0; k < command[j].size(); k++)
+// 		{
+// 			if (command[j][k] == ' ' || command[j][k] == '\r')
+// 			{
+// 				command_split.push_back(tmp);
+// 				tmp = "";
+// 			}
+// 			else
+// 				tmp += command[j][k];
+// 		}
+// 		command_split.push_back(tmp);
+// 		//Execute the command
+// 		if (command_split[0] == "NICK")
+// 		{
+// 			_clients[i - 1].old_nickname = _clients[i - 1].nickname;
+// 			_clients[i - 1].nickname = command_split[1];
+// 			SendMessage(_clients[i - 1].fd, RPL_NICK(_clients[i - 1].old_nickname, _clients[i - 1].nickname, _clients[i - 1].nickname));
+// 		}
+// 		else if (command_split[0] == "PASS")
+// 		{
+// 			if (command_split[1] == this->_pwd)
+// 			{
+// 				_clients[i - 1].is_registered = true;
+// 				SendMessage(_clients[i - 1].fd, RPL_WELCOME(_clients[i - 1].nickname, _clients[i - 1].nickname));
+// 			}
+// 			else
+// 			{
+// 				std::cout << BLUE "[PASS TEST]"<< RESET << std::endl;
+// 				SendMessage(_clients[i - 1].fd, ERR_PASSWDMISMATCH(_clients[i - 1].nickname));
+// 			}
+// 		}
+// 		else if (command_split[0] == "USER")
+// 		{
+// 			_clients[i - 1].username = command_split[1];
+// 			_clients[i - 1].hostname = command_split[2];
+// 			_clients[i - 1].servername = command_split[3];
+// 			_clients[i - 1].realname = command_split[4];
+// 			SendMessage(_clients[i - 1].fd, RPL_YOURHOST(_clients[i - 1].nickname, _clients[i - 1].servername));
+// 			SendMessage(_clients[i - 1].fd, RPL_CREATED(_clients[i - 1].nickname, _clients[i - 1].servername));
+// 			SendMessage(_clients[i - 1].fd, RPL_MYINFO(_clients[i - 1].nickname, _clients[i - 1].servername, "0.0.1", "0.0.1"));
+// 		}
+// 	}
+// 	return (0);
+// }
+
+void	Server::pass(int i, std::vector<std::string> command_split)
+{
+	if (command_split[1] == this->_pwd)
+	{
+		_clients[i - 1].is_registered = true;
+		SendMessage(_clients[i - 1].fd, RPL_WELCOME(_clients[i - 1].nickname, _clients[i - 1].nickname));
+	}
+	else
+	{
+		std::cout << BLUE "[PASS TEST]"<< RESET << std::endl;
+		SendMessage(_clients[i - 1].fd, ERR_PASSWDMISMATCH(_clients[i - 1].nickname));
+	}
+}
+
 int	Server::make_command(std::string buffer, int i) //! TOUT CA A REFAIRE PASSKE C DEGUEU
 {
 	//Go through the line and find every command and its arguments and put the command and its arguments in the same vector and the next command and it's arguments in the next vector
@@ -99,21 +184,16 @@ int	Server::make_command(std::string buffer, int i) //! TOUT CA A REFAIRE PASSKE
 			SendMessage(_clients[i - 1].fd, RPL_NICK(_clients[i - 1].old_nickname, _clients[i - 1].nickname, _clients[i - 1].nickname));
 		}
 		else if (command_split[0] == "PASS")
-		{
-			if (command_split[1] == this->_pwd)
-			{
-				_clients[i - 1].is_registered = true;
-				SendMessage(_clients[i - 1].fd, RPL_WELCOME(_clients[i - 1].nickname, _clients[i - 1].nickname));
-			}
-			else
-			{
-				std::cout << BLUE "[PASS TEST]"<< RESET << std::endl;
-				SendMessage(_clients[i - 1].fd, ERR_PASSWDMISMATCH(_clients[i - 1].nickname));
-			}
-		}
+			pass(i, command_split);
 		else if (command_split[0] == "USER")
 		{
-
+			_clients[i - 1].username = command_split[1];
+			_clients[i - 1].hostname = command_split[2];
+			_clients[i - 1].servername = command_split[3];
+			_clients[i - 1].realname = command_split[4];
+			SendMessage(_clients[i - 1].fd, RPL_YOURHOST(_clients[i - 1].nickname, _clients[i - 1].servername));
+			SendMessage(_clients[i - 1].fd, RPL_CREATED(_clients[i - 1].nickname, _clients[i - 1].servername));
+			SendMessage(_clients[i - 1].fd, RPL_MYINFO(_clients[i - 1].nickname, _clients[i - 1].servername, "0.0.1", "0.0.1"));
 		}
 	}
 	return (0);
