@@ -13,10 +13,14 @@
 #include <cstring>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <sstream>
 #include "client.hpp"
 #include "response.hpp"
 #include "Colors.hpp"
 #include "utils.hpp"
+#include <signal.h>
+
+// extern bool server_run;
 
 class Server
 {
@@ -29,11 +33,13 @@ private:
 	int _addrlen;
 	std::vector<Client> _clients;
 	int _watch_activity;
+	int _nb;
 
 public:
 	Server(std::string, std::string);
 	void infinit_loop();
 	void new_client();
+	bool is_commande(std::string);
 	void client_disconnected(int);
 	int	 make_command(std::string buffer, int i);
 	void	SendMessage(int fd, std::string message);
@@ -44,6 +50,8 @@ public:
 	void	join(int, std::vector<std::string>);
 	void	privmsg(int, std::vector<std::string>);
 	~Server();
+
 };
 
-#endif // !SERVER_HPP
+
+#endif SERVER_HPP
