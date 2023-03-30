@@ -139,6 +139,24 @@ void	Server::pass(int i, std::vector<std::string> command_split)
 	}
 }
 
+void	Server::nick(int i, std::vector<std::string> command_split)
+{
+	_clients[i - 1].old_nickname = _clients[i - 1].nickname;
+	_clients[i - 1].nickname = command_split[1];
+	SendMessage(_clients[i - 1].fd, RPL_NICK(_clients[i - 1].old_nickname, _clients[i - 1].nickname, _clients[i - 1].nickname));
+}
+
+void	Server::user(int i, std::vector<std::string> command_split)
+{
+	_clients[i - 1].username = command_split[1];
+	_clients[i - 1].hostname = command_split[2];
+	_clients[i - 1].servername = command_split[3];
+	_clients[i - 1].realname = command_split[4];
+	SendMessage(_clients[i - 1].fd, RPL_YOURHOST(_clients[i - 1].nickname, _clients[i - 1].servername));
+	SendMessage(_clients[i - 1].fd, RPL_CREATED(_clients[i - 1].nickname, _clients[i - 1].servername));
+	SendMessage(_clients[i - 1].fd, RPL_MYINFO(_clients[i - 1].nickname, _clients[i - 1].servername, "0.0.1", "0.0.1"));
+}
+
 int	Server::make_command(std::string buffer, int i) //! TOUT CA A REFAIRE PASSKE C DEGUEU
 {
 	//Go through the line and find every command and its arguments and put the command and its arguments in the same vector and the next command and it's arguments in the next vector
@@ -178,23 +196,11 @@ int	Server::make_command(std::string buffer, int i) //! TOUT CA A REFAIRE PASSKE
 		command_split.push_back(tmp);
 		//Execute the command
 		if (command_split[0] == "NICK")
-		{
-			_clients[i - 1].old_nickname = _clients[i - 1].nickname;
-			_clients[i - 1].nickname = command_split[1];
-			SendMessage(_clients[i - 1].fd, RPL_NICK(_clients[i - 1].old_nickname, _clients[i - 1].nickname, _clients[i - 1].nickname));
-		}
+			nick(i, command_split);
 		else if (command_split[0] == "PASS")
 			pass(i, command_split);
 		else if (command_split[0] == "USER")
-		{
-			_clients[i - 1].username = command_split[1];
-			_clients[i - 1].hostname = command_split[2];
-			_clients[i - 1].servername = command_split[3];
-			_clients[i - 1].realname = command_split[4];
-			SendMessage(_clients[i - 1].fd, RPL_YOURHOST(_clients[i - 1].nickname, _clients[i - 1].servername));
-			SendMessage(_clients[i - 1].fd, RPL_CREATED(_clients[i - 1].nickname, _clients[i - 1].servername));
-			SendMessage(_clients[i - 1].fd, RPL_MYINFO(_clients[i - 1].nickname, _clients[i - 1].servername, "0.0.1", "0.0.1"));
-		}
+			user(i, command_split);
 	}
 	return (0);
 }

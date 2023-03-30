@@ -39,6 +39,8 @@ public:
 	void	SendMessage(int fd, std::string message);
 
 	void	pass(int, std::vector<std::string>);
+	void	nick(int, std::vector<std::string>);
+	void	user(int, std::vector<std::string>);
 	~Server();
 };
 
