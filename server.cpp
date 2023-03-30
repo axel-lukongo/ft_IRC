@@ -52,6 +52,7 @@ Server::Server(std::string argv, std::string pwd): _addrlen(sizeof(_address)), _
 
 void	Server::SendMessage(int fd, std::string message)
 {
+	std::cout << BLUE "[SERVER] >> " << RESET << message << std::endl;
 	send(fd, message.c_str(), message.size(), 0);
 }
 
@@ -117,10 +118,24 @@ void	Server::privmsg(int i, std::vector<std::string> command_split)
 		tmp += command_split[j];
 		tmp += " ";
 	}
-	for (size_t j = 0; j < _clients.size(); j++)
+
+	if (command_split[1][0] == '#')
 	{
-		if (_clients[j].channel == channel && _clients[j].nickname != nickname)
-			SendMessage(_clients[j].fd, RPL_PRIVMSG(nickname, channel, tmp));
+		for (size_t j = 0; j < _clients.size(); j++)
+		{
+			if (_clients[j].channel == channel && _clients[j].nickname != nickname)
+				SendMessage(_clients[j].fd, RPL_PRIVMSG(nickname, channel, tmp));
+		}
+	}
+	else // send a message to another client
+	{
+		for (size_t j = 0; j < _clients.size(); j++)
+		{
+			if (_clients[j].nickname == channel && _clients[j].nickname != nickname)
+			{
+				SendMessage(_clients[j].fd, RPL_PRIVMSG(nickname, channel, tmp));
+			}
+		}
 	}
 }
 
