@@ -49,6 +49,9 @@ public:
 	void	user(int, std::vector<std::string>);
 	void	join(int, std::vector<std::string>);
 	void	privmsg(int, std::vector<std::string>);
+
+	int		is_nickname_used(std::string, int);
+
 	~Server();
 
 };

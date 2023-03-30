@@ -6,7 +6,7 @@
 /*   By: ngobert <ngobert@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/03/30 15:19:52 by ngobert          ###   ########.fr       */
+/*   Updated: 2023/03/30 16:50:33 by ngobert          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,17 +24,42 @@ void	Server::pass(int i, std::vector<std::string> command_split)
 		SendMessage(_clients[i - 1].fd, RPL_WELCOME(_clients[i - 1].nickname, _clients[i - 1].nickname));
 	}
 	else
-	{
 		SendMessage(_clients[i - 1].fd, ERR_PASSWDMISMATCH(_clients[i - 1].nickname));
-	}
 }
 
 	//? NICK ####################################
+
+int		Server::is_nickname_used(std::string nickname, int i)
+{
+	size_t x = i;
+	for (size_t j = 0; j < _clients.size(); j++)
+	{
+		if (j == x - 1)
+			continue;
+		if (_clients[j].nickname == nickname)
+			return (1);
+	}
+	return (0);
+}
+
 void	Server::nick(int i, std::vector<std::string> command_split)
 {
+	int c = 0;
+	std::string tmp = command_split[1];
+	while (is_nickname_used(command_split[1], i))
+	{
+		command_split[1] += "_";
+		c++;
+	}
 	_clients[i - 1].old_nickname = _clients[i - 1].nickname;
 	_clients[i - 1].nickname = command_split[1];
-	SendMessage(_clients[i - 1].fd, RPL_NICK(_clients[i - 1].old_nickname, _clients[i - 1].nickname, _clients[i - 1].nickname));
+	if (c != 0)
+	{
+		SendMessage(_clients[i - 1].fd, ERR_NICKNAMEINUSE(tmp, tmp));
+		SendMessage(_clients[i - 1].fd, RPL_NICK(_clients[i - 1].old_nickname, _clients[i - 1].nickname, _clients[i - 1].nickname));
+	}
+	else
+		SendMessage(_clients[i - 1].fd, RPL_NICK(_clients[i - 1].old_nickname, _clients[i - 1].nickname, _clients[i - 1].nickname));
 }
 
 	//? USER ####################################
