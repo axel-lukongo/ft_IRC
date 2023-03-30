@@ -6,11 +6,12 @@
 /*   By: ngobert <ngobert@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/03/30 14:10:13 by ngobert          ###   ########.fr       */
+/*   Updated: 2023/03/30 15:19:52 by ngobert          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "server.hpp"
+#include "../include/server.hpp"
+#include "../include/the_include.hpp"
 
 //! ############### COMMANDS ####################
 
@@ -24,7 +25,6 @@ void	Server::pass(int i, std::vector<std::string> command_split)
 	}
 	else
 	{
-		std::cout << BLUE "[PASS TEST]"<< RESET << std::endl;
 		SendMessage(_clients[i - 1].fd, ERR_PASSWDMISMATCH(_clients[i - 1].nickname));
 	}
 }
@@ -137,16 +137,19 @@ int	Server::make_command(std::string buffer, int i)
 		}
 		command_split.push_back(tmp);
 		//Execute the command
-		if (command_split[0] == "NICK")
-			nick(i, command_split);
-		else if (command_split[0] == "PASS")
+		if (command_split[0] == "PASS")
 			pass(i, command_split);
-		else if (command_split[0] == "USER")
-			user(i, command_split);
-		else if (command_split[0] == "JOIN")
-			join(i, command_split);
-		else if (command_split[0] == "PRIVMSG")
-			privmsg(i, command_split);
+		if (_clients[i - 1].is_registered == true)
+		{
+			if (command_split[0] == "NICK")
+				nick(i, command_split);
+			else if (command_split[0] == "USER")
+				user(i, command_split);
+			else if (command_split[0] == "JOIN")
+				join(i, command_split);
+			else if (command_split[0] == "PRIVMSG")
+				privmsg(i, command_split);
+		}
 	}
 	return (0);
 }

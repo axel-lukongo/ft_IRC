@@ -1,6 +1,7 @@
 
 #include "../include/server.hpp"
 #include "../include/the_include.hpp"
+
 bool server_run = true;
 
 void signal_sigint(int sig){
@@ -20,10 +21,10 @@ int main(int argc, char const **argv)
 		signal(SIGPIPE, signal_sigint);
 		signal(SIGTSTP, signal_sigint);
 
-		if(argc != 2) //later we have to change by if(argc != 3)
+		if(argc != 3) //later we have to change by if(argc != 3)
 			std::cout << "!!server_IRC <port>!!\n";
 		else
-			Server Server(argv[1]);
+			Server Server(argv[1], argv[2]);
 	}
 	catch (const my_execption & e)
 	{

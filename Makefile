@@ -1,10 +1,10 @@
-NAME = server_IRC
+NAME = ircserv
 CXX = c++
 RM = rm -f
 CXXFLAGS = -Wall -Werror -Wextra -g -std=c++98
 CPPFLAGS = -MMD
 
-SRCS = srcs/main.cpp srcs/server.cpp
+SRCS = srcs/main.cpp srcs/server.cpp srcs/commands.cpp srcs/utils.cpp
 
 OBJS = $(SRCS:.cpp=.o)
 DEPS = $(OBJS:.o=.d)

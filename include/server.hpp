@@ -54,4 +54,4 @@ public:
 };
 
 
-#endif SERVER_HPP
+#endif //SERVER_HPP
