@@ -6,7 +6,7 @@
 /*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/03/31 03:29:36 by alukongo         ###   ########.fr       */
+/*   Updated: 2023/03/31 17:01:55 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,10 +163,10 @@ int	Server::make_command(std::string buffer, int i)
 				join(i, command_split);
 			else if (command_split[0] == "PRIVMSG")
 				privmsg(i, command_split);
-			else if (command_split[0] == "PING"){
+			else if (command_split[0] == "PING")
 				ping_cmd(i, command_split);
-			}
-				// std::cout << "------------------ping has been called---------------------\n";
+			else if (command_split[0] == "QUIT")
+					client_disconnected(i);
 		}
 	}
 	return (0);
