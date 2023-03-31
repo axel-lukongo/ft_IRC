@@ -6,7 +6,7 @@
 Server::Server(std::string argv, std::string pwd) : _addrlen(sizeof(_address))
 {
 	_pwd = pwd;
-	_nb = 0;
+	_nb_client = 0;
 
 	if ((_server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
 	{
@@ -50,7 +50,7 @@ Server::Server(std::string argv, std::string pwd) : _addrlen(sizeof(_address))
 	}
 	_fds[0].fd = _server_fd; //the fd in index 0 is the socket of my server
 	_fds[0].events = POLLIN; 
-	_nb++;
+	_nb_client++;
 	infinit_loop();
 }
 
@@ -77,7 +77,7 @@ void Server::infinit_loop()
 		if (_fds[0].revents == POLLIN) {
 			new_client();
 			// std::cout << "------ " << _clients[0].name << std::endl;
-			_nb++;
+			_nb_client++;
 			continue;
 		}
 

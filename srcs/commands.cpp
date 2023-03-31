@@ -6,7 +6,7 @@
 /*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/03/31 17:01:55 by alukongo         ###   ########.fr       */
+/*   Updated: 2023/03/31 22:17:03 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,7 @@ void	Server::join(int i, std::vector<std::string> command_split)
 {
 	_clients[i - 1].channel = command_split[1];
 	_clients[i - 1].channels_joined.push_back(_clients[i - 1].channel);
+	// std::cout << "\n\n\n --------------le chanel est: " << command_split[1] << "--------------\n\n\n";
 	SendMessage(_clients[i - 1].fd, RPL_TOPIC(_clients[i - 1].nickname, _clients[i - 1].channel, "No topic is set"));
 	SendMessage(_clients[i - 1].fd, RPL_NAMREPLY(_clients[i - 1].nickname, _clients[i - 1].channel, _clients[i - 1].nickname));
 	SendMessage(_clients[i - 1].fd, RPL_ENDOFNAMES(_clients[i - 1].nickname, _clients[i - 1].channel, "End of /NAMES list"));
@@ -93,21 +94,37 @@ void	Server::privmsg(int i, std::vector<std::string> command_split)
 	}
 }
 
-int	Server::ping_cmd(int i, std::vector<std::string> cmd)
+
+	//? PING ####################################
+int	Server::ping_cmd(int i, std::vector<std::string> command_split)
 {
 	// Client		&client		= retrieveClient(server, client_fd);
 	std::string	nickname	= _clients[i - 1].nickname;
 	std::string	username	= _clients[i - 1].username;
 
-	if (cmd[0] == " ")
-		cmd[0].erase(0, 1);
-	cmd[0].insert(0, ":");
-	SendMessage(_clients[i].fd,  RPL_PONG(user_id(nickname, username), cmd[0]));
+	if (command_split[0] == " ")
+		command_split[0].erase(0, 1);
+	command_split[0].insert(0, ":");
+	SendMessage(_clients[i].fd,  RPL_PONG(user_id(nickname, username), command_split[0]));
 	// addToClientBuffer(server, _clients[i - 1].fd, RPL_PONG(user_id(nickname, username), cmd[0]));
 
 	return (1);
 }
 
+	//? WHOIS ####################################
+void Server::whois(int i, std::vector<std::string> command_split){
+	(void) i;
+	for (int index = 0; index < _nb_client - 1; index++){
+		if (_clients[index].nickname == command_split[1]){
+			std::cout << "name: "<<_clients[i].name << "\n";
+			std::cout << "hostname: "<<_clients[i].hostname << "\n";
+			std::cout << "nickname: "<<_clients[i].nickname << "\n";
+			std::cout << "chanel: " <<_clients[i].channel << "\n";
+			return;
+		}
+	}
+	std::cout << command_split[1] <<" this client doesn't exist\n";
+}
 
 //! ############### END COMMANDS ####################
 
@@ -167,6 +184,8 @@ int	Server::make_command(std::string buffer, int i)
 				ping_cmd(i, command_split);
 			else if (command_split[0] == "QUIT")
 					client_disconnected(i);
+			else if (command_split[0] == "WHOIS")
+				whois(i, command_split);
 		}
 	}
 	return (0);

@@ -33,13 +33,13 @@ private:
 	int _addrlen;
 	std::vector<Client> _clients;
 	int _watch_activity;
-	int _nb;
+	int _nb_client;
 
 public:
 	Server(std::string, std::string);
 	void infinit_loop();
 	void new_client();
-	bool is_commande(std::string);
+	// bool is_commande(std::string);
 	void client_disconnected(int);
 	int	 make_command(std::string buffer, int i);
 	void	SendMessage(int fd, std::string message);
@@ -50,6 +50,7 @@ public:
 	void	join(int, std::vector<std::string>);
 	void	privmsg(int, std::vector<std::string>);
 	int		ping_cmd(int, std::vector<std::string>);
+	void	whois(int, std::vector<std::string>);
 	~Server();
 
 };
