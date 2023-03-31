@@ -38,7 +38,7 @@ struct my_execption: public std::exception
 };
 
 
-int	ping_cmd(Server *server, int const client_fd, cmd_struct &cmd);
+// int	ping_cmd(Server *server, int const client_fd, cmd_struct &cmd);
 
 
 #endif // !THE_INCLUDE

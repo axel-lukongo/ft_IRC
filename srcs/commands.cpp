@@ -6,7 +6,7 @@
 /*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/03/30 20:04:33 by alukongo         ###   ########.fr       */
+/*   Updated: 2023/03/31 03:29:36 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,14 +97,15 @@ int	Server::ping_cmd(int i, std::vector<std::string> cmd)
 {
 	// Client		&client		= retrieveClient(server, client_fd);
 	std::string	nickname	= _clients[i - 1].nickname;
-	std::string	username	= _clients[i - 1].username
+	std::string	username	= _clients[i - 1].username;
 
-	if (cmd.[0] == ' ')
-		cmd.erase(0, 1);
-	cmd.insert(0, ":");
-	addToClientBuffer(server, _clients[i - 1].fd, RPL_PONG(user_id(nickname, username), cmd[0]));
+	if (cmd[0] == " ")
+		cmd[0].erase(0, 1);
+	cmd[0].insert(0, ":");
+	SendMessage(_clients[i].fd,  RPL_PONG(user_id(nickname, username), cmd[0]));
+	// addToClientBuffer(server, _clients[i - 1].fd, RPL_PONG(user_id(nickname, username), cmd[0]));
 
-	return (SUCCESS);
+	return (1);
 }
 
 
@@ -162,8 +163,9 @@ int	Server::make_command(std::string buffer, int i)
 				join(i, command_split);
 			else if (command_split[0] == "PRIVMSG")
 				privmsg(i, command_split);
-			else if (command_split[0] == "PING")
-				ping_cmd()
+			else if (command_split[0] == "PING"){
+				ping_cmd(i, command_split);
+			}
 				// std::cout << "------------------ping has been called---------------------\n";
 		}
 	}
