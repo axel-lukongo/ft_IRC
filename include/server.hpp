@@ -51,6 +51,7 @@ public:
 	void	privmsg(int, std::vector<std::string>);
 	int		ping_cmd(int, std::vector<std::string>);
 	void	whois(int, std::vector<std::string>);
+	void	mode(int,std::vector<std::string>);
 	~Server();
 
 };

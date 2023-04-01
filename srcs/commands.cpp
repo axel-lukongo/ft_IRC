@@ -6,7 +6,7 @@
 /*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/03/31 22:17:03 by alukongo         ###   ########.fr       */
+/*   Updated: 2023/04/01 23:47:00 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,9 @@
 #include "../include/the_include.hpp"
 
 //! ############### COMMANDS ####################
+
+
+
 
 	//? PASS ####################################
 void	Server::pass(int i, std::vector<std::string> command_split)
@@ -29,6 +32,15 @@ void	Server::pass(int i, std::vector<std::string> command_split)
 	}
 }
 
+
+
+
+
+
+
+
+
+
 	//? NICK ####################################
 void	Server::nick(int i, std::vector<std::string> command_split)
 {
@@ -36,6 +48,17 @@ void	Server::nick(int i, std::vector<std::string> command_split)
 	_clients[i - 1].nickname = command_split[1];
 	SendMessage(_clients[i - 1].fd, RPL_NICK(_clients[i - 1].old_nickname, _clients[i - 1].nickname, _clients[i - 1].nickname));
 }
+
+
+
+
+
+
+
+
+
+
+
 
 	//? USER ####################################
 void	Server::user(int i, std::vector<std::string> command_split)
@@ -49,16 +72,57 @@ void	Server::user(int i, std::vector<std::string> command_split)
 	SendMessage(_clients[i - 1].fd, RPL_MYINFO(_clients[i - 1].nickname, _clients[i - 1].servername, "0.0.1", "0.0.1"));
 }
 
+
+
+
+
+
+
+
+
+
 	//? JOIN ####################################
 void	Server::join(int i, std::vector<std::string> command_split)
 {
 	_clients[i - 1].channel = command_split[1];
+	// si le channel exist deja je ne serais pas operator
+	bool chanel_exist = false;
+	for(size_t index = 0; index < _clients.size(); index++){ //in this loop i check if the channel already exist
+		for(size_t j = 0; j < _clients[index].channels_joined.size(); j++){
+			if (_clients[index].channels_joined[j] == command_split[1])
+				chanel_exist = true;
+				break;
+		}
+		if (chanel_exist == true)
+			break;
+	}
+
+	if (chanel_exist == false)//if this variable it false it mean this chanel don't exist so i'm the creator and the operator
+		_clients[i - 1].mode[command_split[1]] = "+o";//go watch the variable channels_created in the struct of _client
+	else{
+		std::map<std::string, std::string>::iterator it = _clients[i - 1].mode.find(command_split[1]); 
+			std::cout <<"\n\n\n =============   " <<it->second <<"   ============je suis ici=============\n\n";
+		if (it->second == "+b"){
+			std::cout << "\n\n============je suis ici=============\n\n";
+			SendMessage(_clients[i - 1].fd, ERR_BANNEDFROMCHAN(_clients[i - 1].nickname, _clients[i - 1].channel));
+			return;
+		}
+		_clients[i - 1].mode[command_split[1]] = "+m";
+	}
 	_clients[i - 1].channels_joined.push_back(_clients[i - 1].channel);
-	// std::cout << "\n\n\n --------------le chanel est: " << command_split[1] << "--------------\n\n\n";
 	SendMessage(_clients[i - 1].fd, RPL_TOPIC(_clients[i - 1].nickname, _clients[i - 1].channel, "No topic is set"));
 	SendMessage(_clients[i - 1].fd, RPL_NAMREPLY(_clients[i - 1].nickname, _clients[i - 1].channel, _clients[i - 1].nickname));
 	SendMessage(_clients[i - 1].fd, RPL_ENDOFNAMES(_clients[i - 1].nickname, _clients[i - 1].channel, "End of /NAMES list"));
 }
+
+
+
+
+
+
+
+
+
 
 	//? PRIVMSG ####################################
 void	Server::privmsg(int i, std::vector<std::string> command_split)
@@ -95,6 +159,13 @@ void	Server::privmsg(int i, std::vector<std::string> command_split)
 }
 
 
+
+
+
+
+
+
+
 	//? PING ####################################
 int	Server::ping_cmd(int i, std::vector<std::string> command_split)
 {
@@ -111,6 +182,14 @@ int	Server::ping_cmd(int i, std::vector<std::string> command_split)
 	return (1);
 }
 
+
+
+
+
+
+
+
+
 	//? WHOIS ####################################
 void Server::whois(int i, std::vector<std::string> command_split){
 	(void) i;
@@ -125,6 +204,44 @@ void Server::whois(int i, std::vector<std::string> command_split){
 	}
 	std::cout << command_split[1] <<" this client doesn't exist\n";
 }
+
+
+
+
+
+
+
+
+
+void Server::mode(int i, std::vector<std::string> command_split){
+	std::map<std::string, std::string>::iterator it = _clients[i - 1].mode.find(command_split[1]); 
+	bool client_exist = false;
+	if(it->second == "+o"){
+		size_t j = 0;
+		for(; j < _clients.size(); j++){
+			if (_clients[j].nickname == command_split[3]){
+				if (command_split[2] == "+b")
+					_clients[j].mode[command_split[1]] = command_split[2];
+				client_exist = true;
+				break;
+			}
+		}
+		if(client_exist == false){
+			std::cout << "this client doesn't exist";
+			return;
+		}
+	}
+	else
+		std::cout << "\n\n\n=============you are not a operator==============\n\n\n ";
+}
+
+
+
+
+
+
+
+
 
 //! ############### END COMMANDS ####################
 
@@ -182,10 +299,12 @@ int	Server::make_command(std::string buffer, int i)
 				privmsg(i, command_split);
 			else if (command_split[0] == "PING")
 				ping_cmd(i, command_split);
-			else if (command_split[0] == "QUIT")
-					client_disconnected(i);
 			else if (command_split[0] == "WHOIS")
 				whois(i, command_split);
+			else if (command_split[0] == "MODE")
+				mode(i, command_split);
+			// else if (command_split[0] == "QUIT")
+			// 		client_disconnected(i);
 		}
 	}
 	return (0);
