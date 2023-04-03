@@ -6,7 +6,7 @@
 /*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/01 23:47:00 by alukongo         ###   ########.fr       */
+/*   Updated: 2023/04/03 13:21:56 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,14 +96,11 @@ void	Server::join(int i, std::vector<std::string> command_split)
 		if (chanel_exist == true)
 			break;
 	}
-
 	if (chanel_exist == false)//if this variable it false it mean this chanel don't exist so i'm the creator and the operator
 		_clients[i - 1].mode[command_split[1]] = "+o";//go watch the variable channels_created in the struct of _client
 	else{
 		std::map<std::string, std::string>::iterator it = _clients[i - 1].mode.find(command_split[1]); 
-			std::cout <<"\n\n\n =============   " <<it->second <<"   ============je suis ici=============\n\n";
-		if (it->second == "+b"){
-			std::cout << "\n\n============je suis ici=============\n\n";
+		if (it->second == "+b"){ //i check if this user are not banned from this chanel
 			SendMessage(_clients[i - 1].fd, ERR_BANNEDFROMCHAN(_clients[i - 1].nickname, _clients[i - 1].channel));
 			return;
 		}
