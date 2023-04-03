@@ -6,7 +6,7 @@
 /*   By: ngobert <ngobert@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/03 13:34:30 by ngobert          ###   ########.fr       */
+/*   Updated: 2023/04/03 13:41:12 by ngobert          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,8 +121,10 @@ void	Server::join(int i, std::vector<std::string> command_split)
 	for(size_t index = 0; index < _clients.size(); index++){ //in this loop i check if the channel already exist
 		for(size_t j = 0; j < _clients[index].channels_joined.size(); j++){
 			if (_clients[index].channels_joined[j] == command_split[1])
+			{
 				chanel_exist = true;
 				break;
+			}
 		}
 		if (chanel_exist == true)
 			break;
@@ -331,12 +333,12 @@ int	Server::make_command(std::string buffer, int i)
 				join(i, command_split);
 			else if (command_split[0] == "PRIVMSG")
 				privmsg(i, command_split);
-			else if (command_split[0] == "PING")
-				ping_cmd(i, command_split);
-			else if (command_split[0] == "WHOIS")
-				whois(i, command_split);
-			else if (command_split[0] == "MODE")
-				mode(i, command_split);
+			// else if (command_split[0] == "PING")
+			// 	ping_cmd(i, command_split);
+			// else if (command_split[0] == "WHOIS")
+			// 	whois(i, command_split);
+			// else if (command_split[0] == "MODE")
+			// 	mode(i, command_split);
 			// else if (command_split[0] == "QUIT")
 			// 		client_disconnected(i);
 		}
