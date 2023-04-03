@@ -6,7 +6,7 @@
 /*   By: ngobert <ngobert@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/03 13:41:12 by ngobert          ###   ########.fr       */
+/*   Updated: 2023/04/03 13:47:39 by ngobert          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,16 +106,7 @@ void	Server::user(int i, std::vector<std::string> command_split)
 	//? JOIN ####################################
 void	Server::join(int i, std::vector<std::string> command_split)
 {
-	// std::vector<Channel>::iterator it;
-	// std::string str;
-
-	// str = command_split[1];
-	
-	// it = std::find(_channels.begin(), _channels.end(), str);
-	// if (it == _channels.end())
-	// {
-	// 	Channel new_channel;
-	// 	new_channel.name = command_split[1];
+	_clients[i - 1].channel = command_split[1];
 	// si le channel exist deja je ne serais pas operator
 	bool chanel_exist = false;
 	for(size_t index = 0; index < _clients.size(); index++){ //in this loop i check if the channel already exist
@@ -139,15 +130,7 @@ void	Server::join(int i, std::vector<std::string> command_split)
 		}
 		_clients[i - 1].mode[command_split[1]] = "+m";
 	}
-	// 	new_channel.topic = "No topic is set";
-	// 	new_channel.is_private = true;
-	// 	new_channel.operators.push_back(_clients[i - 1].nickname); 
-	// 	new_channel.users.push_back(_clients[i - 1].nickname);
-	// 	_channels.push_back(new_channel);
-		// _clients[i - 1].channels_joined.push_back(_clients[i - 1].channel);
-	// }
-	// else if (std::find())
-	std::cout << command_split[1] << std::endl;
+	_clients[i - 1].channels_joined.push_back(_clients[i - 1].channel);
 	SendMessage(_clients[i - 1].fd, RPL_TOPIC(_clients[i - 1].nickname, _clients[i - 1].channel, "No topic is set"));
 	SendMessage(_clients[i - 1].fd, RPL_NAMREPLY(_clients[i - 1].nickname, _clients[i - 1].channel, _clients[i - 1].nickname));
 	SendMessage(_clients[i - 1].fd, RPL_ENDOFNAMES(_clients[i - 1].nickname, _clients[i - 1].channel, "End of /NAMES list"));
