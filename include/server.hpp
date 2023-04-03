@@ -19,6 +19,7 @@
 #include "response.hpp"
 #include "Colors.hpp"
 #include "utils.hpp"
+#include <algorithm>
 #include <signal.h>
 
 // extern bool server_run;

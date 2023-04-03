@@ -6,7 +6,7 @@
 /*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/03 13:56:53 by alukongo         ###   ########.fr       */
+/*   Updated: 2023/04/03 21:29:16 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,13 @@ int		Server::is_nickname_used(std::string nickname, int i)
 	return (0);
 }
 
+
+
+
+
+
+
+
 void	Server::nick(int i, std::vector<std::string> command_split)
 {
 	int c = 0;
@@ -73,6 +80,9 @@ void	Server::nick(int i, std::vector<std::string> command_split)
 	else
 		SendMessage(_clients[i - 1].fd, RPL_NICK(_clients[i - 1].old_nickname, _clients[i - 1].nickname, _clients[i - 1].nickname));
 }
+
+
+
 
 
 
@@ -106,25 +116,26 @@ void	Server::user(int i, std::vector<std::string> command_split)
 	//? JOIN ####################################
 void	Server::join(int i, std::vector<std::string> command_split)
 {
+	// command_split[1].erase(0, 1);
 	_clients[i - 1].channel = command_split[1];
-	// si le channel exist deja je ne serais pas operator
-	bool chanel_exist = false;
+	bool chanel_exist = false; //a boolfor verify if the chanel already exist
 	for(size_t index = 0; index < _clients.size(); index++){ //in this loop i check if the channel already exist
 		for(size_t j = 0; j < _clients[index].channels_joined.size(); j++){
 			if (_clients[index].channels_joined[j] == command_split[1])
 			{
-				chanel_exist = true;
+				chanel_exist = true; // if the chanel exist i this variable become true
 				break;
 			}
 		}
 		if (chanel_exist == true)
 			break;
 	}
-	if (chanel_exist == false)//if this variable it false it mean this chanel don't exist so i'm the creator and the operator
-		_clients[i - 1].mode[command_split[1]] = "+o";//go watch the variable channels_created in the struct of _client
+	if (chanel_exist == false)//if this variable it false it mean this chanel don't exist so i'm the creator and the operator of the chanel
+		_clients[i - 1].channels_operated.push_back(command_split[1]);
 	else{
-		std::map<std::string, std::string>::iterator it = _clients[i - 1].mode.find(command_split[1]); 
-		if (it->second == "+b"){ //i check if this user are not banned from this chanel
+	std::cout << "\n\n==========   ici   =========\n\n";
+		std::vector<std::string>::iterator it = std::find(_clients[i - 1].channels_banned.begin(), _clients[i - 1].channels_banned.end(),command_split[1]);
+		if (it != _clients[i - 1].channels_banned.end()){ //i check if this user are not banned from this chanel
 			SendMessage(_clients[i - 1].fd, ERR_BANNEDFROMCHAN(_clients[i - 1].nickname, _clients[i - 1].channel));
 			return;
 		}
@@ -215,14 +226,14 @@ void Server::whois(int i, std::vector<std::string> command_split){
 	(void) i;
 	for (size_t index = 0; index < _clients.size(); index++){
 		if (_clients[index].nickname == command_split[1]){
-			std::cout << "name: "<<_clients[i - 1].name << "\n";
-			std::cout << "hostname: "<<_clients[i - 1].hostname << "\n";
-			std::cout << "nickname: "<<_clients[i - 1].nickname << "\n";
-			std::cout << "chanel: " <<_clients[i - 1].channel << "\n";
+			std::cout << "username: "<<_clients[index].username << "\n";
+			std::cout << "hostname: "<<_clients[index].hostname << "\n";
+			std::cout << "nickname: "<<_clients[index].nickname << "\n";
+			std::cout << "chanel: " <<_clients[index].channel << "\n";
 			return;
 		}
 	}
-	std::cout << command_split[1] <<" this client doesn't exist\n";
+	std::cout << command_split[1] <<": nick name not found\n";
 }
 
 
@@ -234,25 +245,28 @@ void Server::whois(int i, std::vector<std::string> command_split){
 
 
 void Server::mode(int i, std::vector<std::string> command_split){
-	std::map<std::string, std::string>::iterator it = _clients[i - 1].mode.find(command_split[1]); 
+	std::vector<std::string>::iterator it = std::find(_clients[i - 1].channels_operated.begin(), _clients[i - 1].channels_operated.end(), command_split[1]);
 	bool client_exist = false;
-	if(it->second == "+o"){
+	if(it == _clients[i - 1].channels_operated.end())
+		return;
+	if((*it == command_split[1]) && command_split.size() == 4){
 		size_t j = 0;
 		for(; j < _clients.size(); j++){
-			if (_clients[j].nickname == command_split[3]){
+			if (_clients[j].nickname == command_split[3]){ // i look if the client exist
 				if (command_split[2] == "+b")
-					_clients[j].mode[command_split[1]] = command_split[2];
+					_clients[j].channels_banned.push_back(command_split[1]);
 				client_exist = true;
 				break;
 			}
 		}
 		if(client_exist == false){
-			std::cout << "this client doesn't exist";
+			std::cout <<command_split[3] <<": client or commande invalid";
 			return;
 		}
 	}
-	else
-		std::cout << "\n\n\n=============you are not a operator==============\n\n\n ";
+	else{
+		std::cout << "\n==========   you are not a operator   ==========\n ";
+	}
 }
 
 
@@ -302,6 +316,7 @@ int	Server::make_command(std::string buffer, int i)
 			else
 				tmp += command[j][k];
 		}
+
 		command_split.push_back(tmp);
 		//Execute the command
 		if (command_split[0] == "PASS")

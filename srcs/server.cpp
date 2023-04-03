@@ -128,7 +128,7 @@ void Server::new_client(){
 
 	_fds[_clients.size()].fd = _new_socket;
 	_fds[_clients.size()].events = POLLIN;
-	std::cout << "-----------new client connection--------------\n";
+	std::cout << "-----------new client connected--------------\n";
 }
 
 
@@ -138,7 +138,6 @@ void Server::client_disconnected(int i){
 	_clients.erase(_clients.begin() + i );
 	_fds[i].fd = 0;
 	std::cout << "Client " << _clients[i-1].nickname << " disconnected \n\n";
-
 }
 
 Server::~Server()
