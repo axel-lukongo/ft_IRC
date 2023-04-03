@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ngobert <ngobert@student.42.fr>            +#+  +:+       +#+        */
+/*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/03 13:47:39 by ngobert          ###   ########.fr       */
+/*   Updated: 2023/04/03 13:56:53 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -213,12 +213,12 @@ int	Server::ping_cmd(int i, std::vector<std::string> command_split)
 	//? WHOIS ####################################
 void Server::whois(int i, std::vector<std::string> command_split){
 	(void) i;
-	for (int index = 0; index < _nb_client - 1; index++){
+	for (size_t index = 0; index < _clients.size(); index++){
 		if (_clients[index].nickname == command_split[1]){
-			std::cout << "name: "<<_clients[i].name << "\n";
-			std::cout << "hostname: "<<_clients[i].hostname << "\n";
-			std::cout << "nickname: "<<_clients[i].nickname << "\n";
-			std::cout << "chanel: " <<_clients[i].channel << "\n";
+			std::cout << "name: "<<_clients[i - 1].name << "\n";
+			std::cout << "hostname: "<<_clients[i - 1].hostname << "\n";
+			std::cout << "nickname: "<<_clients[i - 1].nickname << "\n";
+			std::cout << "chanel: " <<_clients[i - 1].channel << "\n";
 			return;
 		}
 	}
@@ -316,12 +316,12 @@ int	Server::make_command(std::string buffer, int i)
 				join(i, command_split);
 			else if (command_split[0] == "PRIVMSG")
 				privmsg(i, command_split);
-			// else if (command_split[0] == "PING")
-			// 	ping_cmd(i, command_split);
-			// else if (command_split[0] == "WHOIS")
-			// 	whois(i, command_split);
-			// else if (command_split[0] == "MODE")
-			// 	mode(i, command_split);
+			else if (command_split[0] == "PING")
+				ping_cmd(i, command_split);
+			else if (command_split[0] == "WHOIS")
+				whois(i, command_split);
+			else if (command_split[0] == "MODE")
+				mode(i, command_split);
 			// else if (command_split[0] == "QUIT")
 			// 		client_disconnected(i);
 		}
