@@ -6,7 +6,7 @@
 /*   By: ngobert <ngobert@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/27 14:27:00 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/03 10:56:49 by ngobert          ###   ########.fr       */
+/*   Updated: 2023/04/03 13:32:21 by ngobert          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,5 +40,11 @@
 
 // USER
 # define ERR_ALREADYREGISTRED(client) (":localhost 462 " + client + " :You may not reregister.\r\n")
+//PONG
+# define RPL_PONG(user_id, token) (user_id + " PONG " + token + "\r\n")
+// #define PONG(user) (":" + user->getHost() + " PONG :" + user->getNick() + "\r\n")
+#define ERR_NEEDMOREPARAMS(user, command) (":" + (user)->getName() + " 461 " + (user)->getNick() + " " + (command) + " :Not enough parameters\r\n")
+
+	# define ERR_BANNEDFROMCHAN(client, channel) ("474 " + client + " #" + channel + " :Cannot join channel (+b)\r\n")
 
 #endif
