@@ -18,6 +18,7 @@ struct Client {
 	std::string realname;
 
 	bool is_registered;
+	bool is_connected;
 	std::string channel;
 
 	std::vector<std::string> channels_joined;

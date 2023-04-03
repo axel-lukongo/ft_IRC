@@ -15,6 +15,7 @@
 #include <arpa/inet.h>
 #include <sstream>
 #include "client.hpp"
+#include "channel.hpp"
 #include "response.hpp"
 #include "Colors.hpp"
 #include "utils.hpp"
@@ -25,23 +26,24 @@
 class Server
 {
 private:
-	std::string _pwd;
-	int _server_fd, _new_socket;
-	long _valread;
-	struct sockaddr_in _address;
-	struct pollfd _fds[10 + 1]; //this struct it for watche and add many socket_fd in it
-	int _addrlen;
-	std::vector<Client> _clients;
-	int _watch_activity;
-	int _nb;
+	std::string				_pwd;
+	int						_server_fd, _new_socket;
+	long					_valread;
+	struct sockaddr_in		_address;
+	struct pollfd			_fds[10 + 1]; //this struct it for watche and add many socket_fd in it
+	int						_addrlen;
+	std::vector<Client>		_clients;
+	int						_watch_activity;
+	int						_nb;
+	std::vector<Channel>	_channels;
 
 public:
 	Server(std::string, std::string);
-	void infinit_loop();
-	void new_client();
-	bool is_commande(std::string);
-	void client_disconnected(int);
-	int	 make_command(std::string buffer, int i);
+	void	infinit_loop();
+	void	new_client();
+	bool	is_commande(std::string);
+	void	client_disconnected(int);
+	int		make_command(std::string buffer, int i);
 	void	SendMessage(int fd, std::string message);
 
 	void	pass(int, std::vector<std::string>);

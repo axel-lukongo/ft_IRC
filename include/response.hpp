@@ -6,7 +6,7 @@
 /*   By: ngobert <ngobert@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/27 14:27:00 by ngobert           #+#    #+#             */
-/*   Updated: 2023/03/30 16:38:35 by ngobert          ###   ########.fr       */
+/*   Updated: 2023/04/03 10:56:49 by ngobert          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,5 +37,8 @@
 
 // PRIVMSG
 # define RPL_PRIVMSG(client, channel, message) (":" + client + "!" + client + "@localhost PRIVMSG " + channel + " " + message + "\r\n")
+
+// USER
+# define ERR_ALREADYREGISTRED(client) (":localhost 462 " + client + " :You may not reregister.\r\n")
 
 #endif
