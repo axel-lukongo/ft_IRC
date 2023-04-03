@@ -6,7 +6,7 @@
 /*   By: ngobert <ngobert@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/03 13:47:39 by ngobert          ###   ########.fr       */
+/*   Updated: 2023/04/03 16:59:42 by ngobert          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,9 +89,12 @@ void	Server::user(int i, std::vector<std::string> command_split)
 	_clients[i - 1].hostname = command_split[2];
 	_clients[i - 1].servername = command_split[3];
 	_clients[i - 1].realname = command_split[4];
+
+	
 	SendMessage(_clients[i - 1].fd, RPL_YOURHOST(_clients[i - 1].nickname, _clients[i - 1].servername));
 	SendMessage(_clients[i - 1].fd, RPL_CREATED(_clients[i - 1].nickname, _clients[i - 1].servername));
 	SendMessage(_clients[i - 1].fd, RPL_MYINFO(_clients[i - 1].nickname, _clients[i - 1].servername, "0.0.1", "0.0.1"));
+	_clients[i - 1].is_registered = true;
 }
 
 
@@ -106,7 +109,6 @@ void	Server::user(int i, std::vector<std::string> command_split)
 	//? JOIN ####################################
 void	Server::join(int i, std::vector<std::string> command_split)
 {
-	_clients[i - 1].channel = command_split[1];
 	// si le channel exist deja je ne serais pas operator
 	bool chanel_exist = false;
 	for(size_t index = 0; index < _clients.size(); index++){ //in this loop i check if the channel already exist
@@ -125,12 +127,14 @@ void	Server::join(int i, std::vector<std::string> command_split)
 	else{
 		std::map<std::string, std::string>::iterator it = _clients[i - 1].mode.find(command_split[1]); 
 		if (it->second == "+b"){ //i check if this user are not banned from this chanel
+			std::cout << "test" << std::endl;
 			SendMessage(_clients[i - 1].fd, ERR_BANNEDFROMCHAN(_clients[i - 1].nickname, _clients[i - 1].channel));
 			return;
 		}
 		_clients[i - 1].mode[command_split[1]] = "+m";
 	}
 	_clients[i - 1].channels_joined.push_back(_clients[i - 1].channel);
+	_clients[i - 1].channel = command_split[1];
 	SendMessage(_clients[i - 1].fd, RPL_TOPIC(_clients[i - 1].nickname, _clients[i - 1].channel, "No topic is set"));
 	SendMessage(_clients[i - 1].fd, RPL_NAMREPLY(_clients[i - 1].nickname, _clients[i - 1].channel, _clients[i - 1].nickname));
 	SendMessage(_clients[i - 1].fd, RPL_ENDOFNAMES(_clients[i - 1].nickname, _clients[i - 1].channel, "End of /NAMES list"));
@@ -215,10 +219,10 @@ void Server::whois(int i, std::vector<std::string> command_split){
 	(void) i;
 	for (int index = 0; index < _nb_client - 1; index++){
 		if (_clients[index].nickname == command_split[1]){
-			std::cout << "name: "<<_clients[i].name << "\n";
-			std::cout << "hostname: "<<_clients[i].hostname << "\n";
-			std::cout << "nickname: "<<_clients[i].nickname << "\n";
-			std::cout << "chanel: " <<_clients[i].channel << "\n";
+			std::cout << "name: "<<_clients[index].name << "\n";
+			std::cout << "hostname: "<<_clients[index].hostname << "\n";
+			std::cout << "nickname: "<<_clients[index].nickname << "\n";
+			std::cout << "chanel: " <<_clients[index].channel << "\n";
 			return;
 		}
 	}
@@ -316,12 +320,12 @@ int	Server::make_command(std::string buffer, int i)
 				join(i, command_split);
 			else if (command_split[0] == "PRIVMSG")
 				privmsg(i, command_split);
-			// else if (command_split[0] == "PING")
-			// 	ping_cmd(i, command_split);
-			// else if (command_split[0] == "WHOIS")
-			// 	whois(i, command_split);
-			// else if (command_split[0] == "MODE")
-			// 	mode(i, command_split);
+			else if (command_split[0] == "PING")
+				ping_cmd(i, command_split);
+			else if (command_split[0] == "WHOIS")
+				whois(i, command_split);
+			else if (command_split[0] == "MODE")
+				mode(i, command_split);
 			// else if (command_split[0] == "QUIT")
 			// 		client_disconnected(i);
 		}
