@@ -57,7 +57,7 @@ Server::Server(std::string argv, std::string pwd) : _addrlen(sizeof(_address))
 void	Server::SendMessage(int fd, std::string message)
 {
 	std::cout << CYAN "[SERVER] >> " << RESET << message << std::endl;
-	send(fd, message.c_str(), message.size(), 0);
+	send(fd, message.c_str(), message.size(), MSG_NOSIGNAL); //MSG_NOSIGNAL: it allow to the OS to not send a SIGPIPE if the client who we send a msg close his connexion
 }
 
 void Server::infinit_loop()

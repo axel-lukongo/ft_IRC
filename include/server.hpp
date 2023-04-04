@@ -21,6 +21,7 @@
 #include "utils.hpp"
 #include <algorithm>
 #include <signal.h>
+#include "channel.hpp"
 
 // extern bool server_run;
 
@@ -52,9 +53,10 @@ public:
 	void	user(int, std::vector<std::string>);
 	void	join(int, std::vector<std::string>);
 	void	privmsg(int, std::vector<std::string>);
-
+	void	join_the_channel(int, bool, std::vector<std::string>);
 	int		is_nickname_used(std::string, int);
-
+	bool	chanel_is_exist(int, std::string);
+	bool	is_banned(int, std::string);
 	int		ping_cmd(int, std::vector<std::string>);
 	void	whois(int, std::vector<std::string>);
 	void	mode(int,std::vector<std::string>);

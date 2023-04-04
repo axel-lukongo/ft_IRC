@@ -11,7 +11,7 @@ struct Channel
 	std::vector<std::string>	users;
 	std::vector<std::string>	operators;
 	std::vector<std::string>	banned_users;
-	// std::vector<std::string>	invited;
+	std::vector<std::string>	invited;
 	std::vector<std::string>	voice;
 };
 
