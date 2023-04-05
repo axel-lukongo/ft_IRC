@@ -6,7 +6,7 @@
 /*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/04 21:24:56 by alukongo         ###   ########.fr       */
+/*   Updated: 2023/04/05 20:50:50 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,6 +158,7 @@ void Server::join_the_channel(int i,bool chanel_exist, std::vector<std::string> 
  * @return false it mean the channel does not exist
  */
 bool Server::chanel_is_exist(int i, std::string command_split){
+	(void) i;
 		_clients[i - 1].channel = command_split;
 	for(size_t index = 0; index < _channels.size(); index++){ //in this loop i check if the channel already exist
 		if (_channels[index].name == command_split)
@@ -189,7 +190,6 @@ bool Server::is_banned(int i, std::string channel_name){
 
 void	Server::join(int i, std::vector<std::string> command_split)
 {
-	_clients[i - 1].channel = command_split[1];
 	std::string channel_name = command_split[1];
 	channel_name.erase(0,1); //it just for erase the "#" because it creat some for my comparaisons
 	bool chanel_exist = chanel_is_exist(i, channel_name); //a bool for verify if the chanel already exist
@@ -207,6 +207,7 @@ void	Server::join(int i, std::vector<std::string> command_split)
 	SendMessage(_clients[i - 1].fd, RPL_TOPIC(_clients[i - 1].nickname, _clients[i - 1].channel, "No topic is set"));
 	SendMessage(_clients[i - 1].fd, RPL_NAMREPLY(_clients[i - 1].nickname, _clients[i - 1].channel, _clients[i - 1].nickname));
 	SendMessage(_clients[i - 1].fd, RPL_ENDOFNAMES(_clients[i - 1].nickname, _clients[i - 1].channel, "End of /NAMES list"));
+	_clients[i - 1].channel = channel_name;
 }
 
 
@@ -348,7 +349,24 @@ void Server::mode(int i, std::vector<std::string> command_split){
 
 
 
+void Server::part(int i, std::vector<std::string> command_split){
+	(void) command_split;
+	std::string chanel_of_client = _clients[i - 1].channel.erase(0,1);
+	for (size_t j = 0; j < _channels.size(); j++){
+		if (_channels[j].name == chanel_of_client){
+			_channels[j].users.erase(std::remove(_channels[j].users.begin(), _channels[j].users.end(), _clients[i -1].nickname), _channels[j].users.end());
+			_clients[i - 1].channel.clear();
+			std::cout << "\n\n===========  " << _clients[i - 1].nickname << "  leave the chanel ==============\n\n";
+			std::vector<std::string>::iterator it = std::find(_channels[j].operators.begin(), _channels[j].operators.end(), _clients[i -1].nickname);
 
+
+			if(it != _channels[j].operators.end()){
+				std::cout << "\n\n============  he was an operator ============\n\n";
+				_channels[j].operators.erase(std::remove(_channels[j].operators.begin(), _channels[j].operators.end(), _clients[i -1].nickname), _channels[j].operators.end());
+			}
+		}
+	}
+}
 
 
 
@@ -413,6 +431,8 @@ int	Server::make_command(std::string buffer, int i)
 				whois(i, command_split);
 			else if (command_split[0] == "MODE")
 				mode(i, command_split);
+			else if (command_split[0] == "PART")
+				part(i ,command_split);
 			// else if (command_split[0] == "QUIT")
 			// 		client_disconnected(i);
 		}
