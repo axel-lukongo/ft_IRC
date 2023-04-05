@@ -6,7 +6,7 @@
 /*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/05 20:50:50 by alukongo         ###   ########.fr       */
+/*   Updated: 2023/04/05 21:05:04 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -289,6 +289,7 @@ void Server::whois(int i, std::vector<std::string> command_split){
 	(void) i;
 	for (size_t index = 0; index < _clients.size(); index++){
 		if (_clients[index].nickname == command_split[1]){
+			SendMessage(_clients[i - 1].fd, (RPL_WHOISUSER(_clients[i - 1], _clients[index])));
 			std::cout << "username: "<<_clients[index].username << "\n";
 			std::cout << "hostname: "<<_clients[index].hostname << "\n";
 			std::cout << "nickname: "<<_clients[index].nickname << "\n";
@@ -296,7 +297,8 @@ void Server::whois(int i, std::vector<std::string> command_split){
 			return;
 		}
 	}
-	std::cout << command_split[1] <<": nick name not found\n";
+	SendMessage(_fds[0].fd, ERR_NOSUCHNICK(_clients[i - 1].nickname, command_split[1]));
+	// std::cout << command_split[1] <<": nick name not found\n";
 }
 
 

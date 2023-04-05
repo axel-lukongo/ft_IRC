@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ngobert <ngobert@student.42.fr>            +#+  +:+       +#+        */
+/*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/27 14:27:00 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/03 13:32:21 by ngobert          ###   ########.fr       */
+/*   Updated: 2023/04/05 21:04:46 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,11 @@
 // #define PONG(user) (":" + user->getHost() + " PONG :" + user->getNick() + "\r\n")
 #define ERR_NEEDMOREPARAMS(user, command) (":" + (user)->getName() + " 461 " + (user)->getNick() + " " + (command) + " :Not enough parameters\r\n")
 
-	# define ERR_BANNEDFROMCHAN(client, channel) ("474 " + client + " #" + channel + " :Cannot join channel (+b)\r\n")
+# define ERR_BANNEDFROMCHAN(client, channel) ("474 " + client + " #" + channel + " :Cannot join channel (+b)\r\n")
+
+//WHOIS
+#define RPL_WHOISUSER(requester, target) (":" + requester.name + " 311 " + requester.nickname + " " + target.nickname + " " + target.name + " " + target.hostname + " * :" + target.realname + "\r\n")
+
+#define ERR_NOSUCHNICK(client, target) ("401 " + client + " " + target + " :No such nick/channel\r\n")
 
 #endif
