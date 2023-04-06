@@ -61,6 +61,9 @@ public:
 	void	whois(int, std::vector<std::string>);
 	void	mode(int, std::vector<std::string>);
 	void	part(int, std::vector<std::string>);
+	void	share_msg(const std::string, std::string);
+	void	kick(int, std::vector<std::string>);
+
 	~Server();
 
 };

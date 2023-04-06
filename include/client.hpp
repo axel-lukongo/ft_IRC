@@ -26,6 +26,10 @@ struct Client {
 	std::map<std::string,std::string> mode;//this variable it for know the right of the user in the chanel
 	std::vector<std::string> channels_created;
 	std::vector<std::string> channels_banned;
+
+	std::string getName( void ) const {
+		return (nickname + "!" + nickname + "@" + hostname);
+	}
 	// public:
 	// 	std::string get_nickname(){
 	// 		return nickname;
