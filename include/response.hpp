@@ -6,7 +6,7 @@
 /*   By: ngobert <ngobert@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/27 14:27:00 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/03 13:32:21 by ngobert          ###   ########.fr       */
+/*   Updated: 2023/04/06 12:37:16 by ngobert          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,9 @@
 # define RPL_ENDOFNAMES(client, channel, message) (":localhost 366 " + client + " " + channel + " :" + message + "\r\n")
 
 // PRIVMSG
+# define ERR_NOSUCHNICK(client, target) ("401 " + client + " " + target + " :No such nick/channel\r\n")
+# define ERR_NORECIPIENT(client) ("411 " + client + " :No recipient given PRIVMSG\r\n")
+# define ERR_NOTEXTTOSEND(client) ("412 " + client + " :No text to send\r\n")
 # define RPL_PRIVMSG(client, channel, message) (":" + client + "!" + client + "@localhost PRIVMSG " + channel + " " + message + "\r\n")
 
 // USER
@@ -45,6 +48,11 @@
 // #define PONG(user) (":" + user->getHost() + " PONG :" + user->getNick() + "\r\n")
 #define ERR_NEEDMOREPARAMS(user, command) (":" + (user)->getName() + " 461 " + (user)->getNick() + " " + (command) + " :Not enough parameters\r\n")
 
-	# define ERR_BANNEDFROMCHAN(client, channel) ("474 " + client + " #" + channel + " :Cannot join channel (+b)\r\n")
+# define ERR_BANNEDFROMCHAN(client, channel) ("474 " + client + " #" + channel + " :Cannot join channel (+b)\r\n")
+
+
+// NOTICE
+# define RPL_NOTICE(nick, username, target, message) (":" + nick + "!" + username + "@localhost NOTICE " + target + " " + message + "\r\n")
+
 
 #endif

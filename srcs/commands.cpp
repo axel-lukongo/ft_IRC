@@ -6,7 +6,7 @@
 /*   By: ngobert <ngobert@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/03 16:59:42 by ngobert          ###   ########.fr       */
+/*   Updated: 2023/04/06 16:31:20 by ngobert          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,8 +167,12 @@ void	Server::privmsg(int i, std::vector<std::string> command_split)
 		for (size_t j = 0; j < _clients.size(); j++)
 		{
 			if (_clients[j].channel == channel && _clients[j].nickname != nickname)
+			{
 				SendMessage(_clients[j].fd, RPL_PRIVMSG(nickname, channel, tmp));
+				return ;
+			}
 		}
+		SendMessage(_clients[i - 1].fd, ERR_NOSUCHNICK(nickname, channel));
 	}
 	else // send a message to another client
 	{
@@ -177,8 +181,11 @@ void	Server::privmsg(int i, std::vector<std::string> command_split)
 			if (_clients[j].nickname == channel && _clients[j].nickname != nickname)
 			{
 				SendMessage(_clients[j].fd, RPL_PRIVMSG(nickname, channel, tmp));
+				return ;
 			}
 		}
+		SendMessage(_clients[i - 1].fd, ERR_NOSUCHNICK(nickname, channel));
+
 	}
 }
 
@@ -262,7 +269,38 @@ void Server::mode(int i, std::vector<std::string> command_split){
 
 
 
+	//? NOTICE ####################################
+void Server::notice(int i, std::vector<std::string> command_split)
+{
+	std::string channel = command_split[1];
+	std::string nickname = _clients[i - 1].nickname;
+	std::string username = _clients[i - 1].username;
 
+	//take the rest of the arguments and put it in the message
+	std::string tmp;
+	for (size_t j = 2; j < command_split.size(); j++)
+	{
+		tmp += command_split[j];
+		tmp += " ";
+	}
+
+	if (command_split[1][0] == '#')
+	{
+		for (size_t j = 0; j < _clients.size(); j++)
+		{
+			if (_clients[j].channel == channel && _clients[j].nickname != nickname)
+				SendMessage(_clients[j].fd, RPL_NOTICE(nickname, username,channel, tmp));
+		}
+	}
+	else // send a message to another client
+	{
+		for (size_t j = 0; j < _clients.size(); j++)
+		{
+			if (_clients[j].nickname == channel && _clients[j].nickname != nickname)
+				SendMessage(_clients[j].fd, RPL_NOTICE(nickname, username,channel, tmp));
+		}
+	}
+}
 
 
 
@@ -326,6 +364,8 @@ int	Server::make_command(std::string buffer, int i)
 				whois(i, command_split);
 			else if (command_split[0] == "MODE")
 				mode(i, command_split);
+			else if (command_split[0] == "NOTICE")
+				notice(i, command_split);
 			// else if (command_split[0] == "QUIT")
 			// 		client_disconnected(i);
 		}
