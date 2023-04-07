@@ -6,7 +6,7 @@
 /*   By: ngobert <ngobert@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/27 14:27:00 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/06 12:37:16 by ngobert          ###   ########.fr       */
+/*   Updated: 2023/04/07 14:26:44 by ngobert          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,5 +54,8 @@
 // NOTICE
 # define RPL_NOTICE(nick, username, target, message) (":" + nick + "!" + username + "@localhost NOTICE " + target + " " + message + "\r\n")
 
+
+// KICK
+# define RPL_KICK(nick, username, channel, target, message) (":" + nick + "!" + username + "@localhost KICK " + channel + " " + target + " " + message + "\r\n")
 
 #endif

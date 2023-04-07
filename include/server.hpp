@@ -36,6 +36,7 @@ private:
 	int						_watch_activity;
 	int						_nb_client;
 	std::vector<Channel>	_channels;
+	std::vector<std::string>	_chans;
 
 public:
 	Server(std::string, std::string);
@@ -53,6 +54,7 @@ public:
 	void	privmsg(int, std::vector<std::string>);
 	void	part(int, std::vector<std::string>);
 	void	notice(int, std::vector<std::string>);
+	void	kick(int, std::vector<std::string>);
 
 	int		is_nickname_used(std::string, int);
 

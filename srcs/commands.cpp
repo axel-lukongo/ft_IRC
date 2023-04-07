@@ -6,7 +6,7 @@
 /*   By: ngobert <ngobert@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/06 16:31:20 by ngobert          ###   ########.fr       */
+/*   Updated: 2023/04/07 16:57:10 by ngobert          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,7 @@ void	Server::user(int i, std::vector<std::string> command_split)
 
 
 	//? JOIN ####################################
-void	Server::join(int i, std::vector<std::string> command_split)
+void	Server::join(int i, std::vector<std::string> command_split) //! A (kinda) refaire
 {
 	// si le channel exist deja je ne serais pas operator
 	bool chanel_exist = false;
@@ -266,7 +266,38 @@ void Server::mode(int i, std::vector<std::string> command_split){
 		std::cout << "\n\n\n=============you are not a operator==============\n\n\n ";
 }
 
-
+	//? KICK ####################################
+void Server::kick(int i, std::vector<std::string> command_split)
+{
+	std::string banner = _clients[i - 1].nickname;
+	std::string channel = command_split[1];
+	std::string to_ban = command_split[2];
+	int	x = 0;
+	// take the rest of the arguments and put it in the message
+	std::string tmp;
+	for (size_t j = 3; j < command_split.size(); j++)
+	{
+		tmp += command_split[j];
+		tmp += " ";
+	}
+	// Kick command if the user is a operator
+	if (std::find(_clients[i - 1].channels_operated.begin(), _clients[i - 1].channels_operated.end(), channel) != _clients[i - 1].channels_operated.end())
+	{
+		std::cout << CYAN << "YOU OPERATOR" << RESET << std::endl;
+		for (size_t j = 0; j < _clients.size(); j++)
+		{
+			if (_clients[j].nickname == to_ban)
+			{
+				SendMessage(_clients[j].fd, RPL_KICK(banner, _clients[i - 1].username,channel, to_ban, tmp));
+				_clients[j].channel = "";
+				x = 1;
+				break;
+			}
+		}
+		if (x == 0)
+			SendMessage(_clients[i - 1].fd, ERR_NOSUCHNICK(banner, to_ban));
+	}
+}
 
 
 	//? NOTICE ####################################
@@ -366,6 +397,8 @@ int	Server::make_command(std::string buffer, int i)
 				mode(i, command_split);
 			else if (command_split[0] == "NOTICE")
 				notice(i, command_split);
+			else if (command_split[0] == "KICK")
+				kick(i, command_split);
 			// else if (command_split[0] == "QUIT")
 			// 		client_disconnected(i);
 		}
