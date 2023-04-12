@@ -6,7 +6,7 @@
 /*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/06 20:42:02 by alukongo         ###   ########.fr       */
+/*   Updated: 2023/04/12 14:51:49 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,7 @@ void	Server::user(int i, std::vector<std::string> command_split)
 		return ;
 	}
 	_clients[i - 1].username = command_split[1];
-	_clients[i - 1].hostname = command_split[2];
+	_clients[i - 1].hostname = "localhost";
 	_clients[i - 1].servername = command_split[3];
 	_clients[i - 1].realname = command_split[4];
 	SendMessage(_clients[i - 1].fd, RPL_YOURHOST(_clients[i - 1].nickname, _clients[i - 1].servername));
@@ -233,11 +233,11 @@ void	Server::privmsg(int i, std::vector<std::string> command_split)
 	}
 	if (command_split[1][0] == '#') // here i look if i send the msg to a chanel
 	{
-		for (size_t j = 0; j < _clients.size(); j++)
-		{
-			if (_clients[j].channel == channel && _clients[j].nickname != nickname){
-				std::cout << "\n\n =========  "<<_clients[j].channel <<"  ======  "<< j <<"  ======\n\n";
-				SendMessage(_clients[j].fd, RPL_PRIVMSG(nickname, channel, msg));
+		if(_clients[i - 1].channel == channel){
+			for (size_t j = 0; j < _clients.size(); j++)
+			{
+				if (_clients[j].channel == channel && _clients[j].nickname != nickname)
+					SendMessage(_clients[j].fd, RPL_PRIVMSG(nickname, channel, msg));
 			}
 		}
 	}
@@ -246,10 +246,7 @@ void	Server::privmsg(int i, std::vector<std::string> command_split)
 		for (size_t j = 0; j < _clients.size(); j++)
 		{
 			if (_clients[j].nickname == command_split[1])
-			{
-				// SendMessage(_clients[j].fd, RPL_PRIVMSG(nickname, _clients[j].nickname , msg));
-				send(4, "je teste un bay ", 15, MSG_NOSIGNAL);
-			}
+				SendMessage(_clients[j].fd, RPL_PRIVMSG(nickname, _clients[j].nickname , msg));
 		}
 	}
 }
@@ -273,7 +270,6 @@ int	Server::ping_cmd(int i, std::vector<std::string> command_split)
 		command_split[0].erase(0, 1);
 	command_split[0].insert(0, ":");
 	SendMessage(_clients[i].fd,  RPL_PONG(user_id(nickname, username), command_split[0]));
-	// addToClientBuffer(server, _clients[i - 1].fd, RPL_PONG(user_id(nickname, username), cmd[0]));
 
 	return (1);
 }
@@ -295,9 +291,8 @@ void Server::whois(int i, std::vector<std::string> command_split){
 			std::cout << "username: "<<_clients[index].username << "\n";
 			std::cout << "hostname: "<<_clients[index].hostname << "\n";
 			std::cout << "nickname: "<<_clients[index].nickname << "\n";
-			std::cout << "name: "<<_clients[index].name << "\n";
-			
 			std::cout << "chanel: " <<_clients[index].channel << "\n";
+			std::cout << "fd: "<<_clients[index].fd << "\n";
 			return;
 		}
 	}
@@ -363,8 +358,8 @@ void Server::share_msg(const std::string info, std::string channel_name) {
 	{
 		// std::cout <<" ==========  client: " << _clients[j].channel << " =========  chan: " << channel_name << std::endl;
 		if (_clients[j].channel == ("#"+channel_name)){
-			std::cout<<"\n\n=========================================\n\n";
-			std::cout << info << "================\n\n";
+			// std::cout<<"\n\n=========================================\n\n";
+			// std::cout << info << "================\n\n";
 			send(_clients[j].fd, info.c_str(), info.size(), MSG_NOSIGNAL);//RPL_PRIVMSG(nickname, channel, msg));
 			// send(_fds[0].fd, info.c_str(), info.size(), MSG_NOSIGNAL);//RPL_PRIVMSG(nickname, channel, msg));
 		}
@@ -382,131 +377,34 @@ void Server::part(int i, std::vector<std::string> command_split){
 		if (_channels[j].name == chanel_of_client){
 
 //part 1 i remove the user from the channel class
-			std::string info =  ":" + _clients[i - 1].getName() + " PART #" + chanel_of_client + " " + _clients[i - 1].nickname +"\r\n";
-			// std::string info = ":" + _clients[i - 1].nickname + " PART #" + _clients[i - 1].channel + " " + _clients[i - 1].nickname +"\r\n";
-			_channels[j].users.erase(std::remove(_channels[j].users.begin(), _channels[j].users.end(), _clients[i -1].nickname), _channels[j].users.end());
+			// std::string info = ":" + _clients[i - 1].nickname + "!" + _clients[i - 1].username + "@" + _clients[i - 1].hostname + "PART #" + _clients[i - 1].channel;
+			// std::string info =  ":" + _clients[i - 1].getName() + " PART #" + chanel_of_client + " " + _clients[i - 1].nickname +"\r\n";
+			std::string info = ":" + _clients[i - 1].nickname + " PART #" + _clients[i - 1].channel + " " + _clients[i - 1].nickname +"\r\n";
+
+
+																//je renoie peut etre le message sur le mauvais fd
+
 
 //part 2 i send message to the all user in the channel
 			share_msg(info, chanel_of_client);
-			_clients[i - 1].channel.clear();
-			// std::string msg = ":" + _clients[i - 1].name + " PART " + chanel_of_client + "\r\n";
 			send(_clients[i - 1].fd, info.c_str(), info.length(), MSG_NOSIGNAL);
+			// std::string msg = ":" + _clients[i - 1].name + " PART " + chanel_of_client + "\r\n";
+			_channels[j].users.erase(std::remove(_channels[j].users.begin(), _channels[j].users.end(), _clients[i - 1].nickname), _channels[j].users.end());
+			std::cout << "\n\n =====dans part====  " << _clients[i - 1].nickname << " ======= "<<_clients[i - 1].channel <<"  ======  "<< _clients[i - 1].fd <<"  ======\n\n";
+			_clients[i - 1].channel.clear();
 			// std::cout << "\n\n===========  " << _clients[i - 1].nickname << "  leave the chanel ==============\n\n";
 
 //part 3 i check if he was an operator
-			std::vector<std::string>::iterator it = std::find(_channels[j].operators.begin(), _channels[j].operators.end(), _clients[i -1].nickname);
+			std::vector<std::string>::iterator it = std::find(_channels[j].operators.begin(), _channels[j].operators.end(), _clients[i - 1].nickname);
 			if(it != _channels[j].operators.end()){
 				// std::cout << "\n\n============  he was an operator ============\n\n";
-				_channels[j].operators.erase(std::remove(_channels[j].operators.begin(), _channels[j].operators.end(), _clients[i -1].nickname), _channels[j].operators.end());
+				_channels[j].operators.erase(std::remove(_channels[j].operators.begin(), _channels[j].operators.end(), _clients[i - 1].nickname), _channels[j].operators.end());
 			}
 			return;
 		}
 	}
+	SendMessage(_clients[i - 1].fd, ERR_NOSUCHCHANNEL(_clients[i - 1], chanel_of_client));
 }
-
-
-// void				kick(Server *server, int const client_fd, cmd_struct cmd_infos)
-// {
-// 	Client& 	requester		= retrieveClient(server, client_fd);
-// 	std::string	requester_name	= requester.getNickname();
-// 	std::string	channel_name	= getChannelName(cmd_infos.message);
-// 	std::string	kicked_name		= getKickedName(cmd_infos.message);
-// 	std::string	reason			= getReason(cmd_infos.message);
-
-// 	std::map<std::string, Channel>&			 channels 	= server->getChannels();
-// 	std::map<std::string, Channel>::iterator it_chan	= channels.find(channel_name);
-
-// 	reason = (reason.empty()) ? ":Kicked by the channel's operator" : reason;
-
-// 	// DEBUG
-// 	// std::cout << "Requester : |" << requester_name << "|" << std::endl;
-// 	// std::cout << "Reason : |" << reason << "|" << std::endl;
-// 	// std::cout << "Kicked : |" << kicked_name << "|" << std::endl;
-
-// 	if (channel_name.empty() || kicked_name.empty())
-// 	{
-// 		addToClientBuffer(server, client_fd, ERR_NEEDMOREPARAMS(requester_name, cmd_infos.name));
-// 		// sendServerRpl(client_fd, ERR_NEEDMOREPARAMS(requester_name, cmd_infos.name));
-// 		return ;
-// 	}
-// 	else if (it_chan == channels.end())
-// 	{
-// 		addToClientBuffer(server, client_fd, ERR_NOSUCHCHANNEL(requester_name, channel_name));
-// 		// sendServerRpl(client_fd, ERR_NOSUCHCHANNEL(requester_name, channel_name));
-// 		return ;
-// 	}
-// 	else if (it_chan->second.doesClientExist(requester_name) == false)
-// 	{
-// 		addToClientBuffer(server, client_fd, ERR_NOTONCHANNEL(requester_name, channel_name));
-// 		// sendServerRpl(client_fd, ERR_NOTONCHANNEL(requester_name, channel_name));
-// 		return ;
-// 	}
-// 	else if (it_chan->second.doesClientExist(kicked_name) == false)
-// 	{
-// 		addToClientBuffer(server, client_fd, ERR_USERNOTINCHANNEL(requester_name, kicked_name, channel_name));
-// 		// sendServerRpl(client_fd, ERR_USERNOTINCHANNEL(requester_name, kicked_name, channel_name));
-// 		return ;
-// 	}
-// 	else if (it_chan->second.isOperator(requester_name) == false) // you're not a channel operator
-// 	{
-// 		addToClientBuffer(server, client_fd, ERR_CHANOPRIVSNEEDED(requester_name, channel_name));
-// 		// sendServerRpl(client_fd, ERR_CHANOPRIVSNEEDED(requester_name, channel_name));
-// 		return ;
-// 	}
-// 	else
-// 	{
-// 		broadcastToChannel(server, it_chan->second, requester, kicked_name, reason);
-// 		it_chan->second.getClientList().erase(kicked_name);
-// 		it_chan->second.addToKicked(kicked_name);
-// 	}
-// }
-
-
-
-
-
-// void Server::kick(int i, std::vector<std::string> command_split){
-// 	Client& requester;
-// 	for(size_t j = 0; j < _clients.size(); j++){
-// 		if(_clients[j].nickname == command_split[1])
-// 			requester = _clients[j];
-// 	}
-
-// 	std::string	requester_name	= requester.getNickname();
-// 	std::string	channel_name	= getChannelName(cmd_infos.message);
-// 	std::string	kicked_name		= getKickedName(cmd_infos.message);
-// 	std::string	reason			= getReason(cmd_infos.message);
-
-// 	std::map<std::string, Channel>&			 channels 	= server->getChannels();
-// 	std::map<std::string, Channel>::iterator it_chan	= channels.find(channel_name);
-
-// 	reason = (reason.empty()) ? ":Kicked by the channel's operator" : reason;
-
-// 	// DEBUG
-// 	// std::cout << "Requester : |" << requester_name << "|" << std::endl;
-// 	// std::cout << "Reason : |" << reason << "|" << std::endl;
-// 	// std::cout << "Kicked : |" << kicked_name << "|" << std::endl;
-
-// 	if (channel_name.empty() || kicked_name.empty())
-// 		SendMessage(_clients[i].fd, ERR_NEEDMOREPARAMS(requester_name, cmd_infos.name));
-// 	}
-// 	else if (it_chan == channels.end())
-// 		SendMessage(_clients[i].fd, ERR_NOSUCHCHANNEL(requester_name, channel_name));
-// 	else if (it_chan->second.doesClientExist(requester_name) == false)
-// 		SendMessage(_clients[i].fd, ERR_NOTONCHANNEL(requester_name, channel_name));
-// 	else if (it_chan->second.doesClientExist(kicked_name) == false)
-// 		SendMessage(_clients[i].fd, ERR_USERNOTINCHANNEL(requester_name, kicked_name, channel_name));
-// 	else if (it_chan->second.isOperator(requester_name) == false) // you're not a channel operator
-// 		SendMessage(_clients[i].fd, ERR_CHANOPRIVSNEEDED(requester_name, channel_name));
-// 	else
-// 	{
-// 		// share_msg()
-// 		// broadcastToChannel(server, it_chan->second, requester, kicked_name, reason);
-// 		// it_chan->second.getClientList().erase(kicked_name);
-// 		// it_chan->second.addToKicked(kicked_name);
-		
-// 	}
-// }
 
 
 //! ############### END COMMANDS ####################
@@ -570,10 +468,8 @@ int	Server::make_command(std::string buffer, int i)
 				whois(i, command_split);
 			else if (command_split[0] == "MODE")
 				mode(i, command_split);
-			else if (i, command_split[0])
-				
-			// else if (command_split[0] == "PART")
-			// 	part(i ,command_split);
+			else if (command_split[0] == "PART")
+				part(i ,command_split);
 			// else if (command_split[0] == "QUIT")
 			// 		client_disconnected(i);
 		}
