@@ -6,7 +6,7 @@
 /*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/12 18:02:04 by alukongo         ###   ########.fr       */
+/*   Updated: 2023/04/12 20:16:13 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,13 +197,14 @@ void	Server::join(int i, std::vector<std::string> command_split)
 	}
 
 	join_the_channel(i, chanel_exist, command_split);//this is where i going join the chanel
-	_clients[i - 1].channels_joined.push_back(_clients[i - 1].channel);//this is the channel where my client is
+	_clients[i - 1].channels_joined.push_back(command_split[1]);//this is the channel where my client is
 	std::string info = ":" + _clients[i - 1].getName() + " JOIN #" + channel_name + "\r\n";
 	SendMessage(_clients[i - 1].fd, info);
 	SendMessage(_clients[i - 1].fd, RPL_TOPIC(_clients[i - 1].nickname, _clients[i - 1].channel, "No topic is set"));
 	SendMessage(_clients[i - 1].fd, RPL_NAMREPLY(_clients[i - 1].nickname, _clients[i - 1].channel, _clients[i - 1].nickname));
 	SendMessage(_clients[i - 1].fd, RPL_ENDOFNAMES(_clients[i - 1].nickname, _clients[i - 1].channel, "End of /NAMES list"));
 	_clients[i - 1].channel = command_split[1];
+	std::cout << "  \n===join ======  " << _clients[i - 1].channel << "  =============\n\n";
 }
 
 
@@ -323,8 +324,16 @@ void Server::mode(int i, std::vector<std::string> command_split){
 			if (_clients[j].nickname == command_split[3]){ // i look if the client exist
 				if (command_split[2] == "+b"){ // i will add amoung the banned user
 					for (size_t x = 0; x < _channels.size(); x++){
-						if (_channels[x].name == command_split[1]){
+						if (_channels[x].name == command_split[1])
 							_channels[x].banned_users.push_back(command_split[3]);
+					}
+				}
+				else if (command_split[2] == "-b")
+				{
+					for (size_t x = 0; x < _channels.size(); x++){
+						if (_channels[x].name == command_split[1]){
+							std::vector<std::string>::iterator it = std::find(_channels[x].banned_users.begin(),_channels[x].banned_users.end(), _clients[j].nickname);
+							_channels[x].banned_users.erase(it);
 						}
 					}
 				}
@@ -352,13 +361,8 @@ void Server::share_msg(const std::string info, std::string channel_name) {
 	(void) channel_name;
 	for (size_t j = 0; j < _clients.size(); j++)
 	{
-		// std::cout <<" ==========  client: " << _clients[j].channel << " =========  chan: " << channel_name << std::endl;
-		if (_clients[j].channel == ("#"+channel_name)){
-			// std::cout<<"\n\n=========================================\n\n";
-			// std::cout << info << "================\n\n";
-			send(_clients[j].fd, info.c_str(), info.size(), MSG_NOSIGNAL);//RPL_PRIVMSG(nickname, channel, msg));
-			// send(_fds[0].fd, info.c_str(), info.size(), MSG_NOSIGNAL);//RPL_PRIVMSG(nickname, channel, msg));
-		}
+		if (_clients[j].channel == ("#"+channel_name))
+			send(_clients[j].fd, info.c_str(), info.size(), MSG_NOSIGNAL);
 	}
 }
 
@@ -370,29 +374,28 @@ void Server::part(int i, std::vector<std::string> command_split){
 	(void) command_split;
 	std::string chanel_of_client = _clients[i - 1].channel.erase(0,1);
 	for (size_t j = 0; j < _channels.size(); j++){
-		std::cout << "\n\n =============  " << _channels[j].name << "  =======  " << chanel_of_client <<"  ==============\n\n";
+	std::cout << "  =======  "<<_channels[j].name << "  =======  " << chanel_of_client << " =======\n\n";
 		if (_channels[j].name == chanel_of_client){
 
 //part 1 i remove the user from the channel class
-			// std::string info = ":" + _clients[i - 1].nickname + "!" + _clients[i - 1].username + "@" + _clients[i - 1].hostname + "PART #" + _clients[i - 1].channel;
 			std::string info = ":" + _clients[i - 1].getName() + " PART #" + chanel_of_client + " " + _clients[i - 1].nickname +"\r\n";
-			// std::string info = ":" + _clients[i - 1].nickname + " PART #" + _clients[i - 1].channel + " " + _clients[i - 1].nickname +"\r\n";
 
 
 //part 2 i send message to the all user in the channel
 			share_msg(info, chanel_of_client);
 			send(_clients[i - 1].fd, info.c_str(), info.length(), MSG_NOSIGNAL);
-			// std::string msg = ":" + _clients[i - 1].name + " PART " + chanel_of_client + "\r\n";
 			_channels[j].users.erase(std::remove(_channels[j].users.begin(), _channels[j].users.end(), _clients[i - 1].nickname), _channels[j].users.end());
-			// std::cout << "\n\n =====dans part====  " << _clients[i - 1].nickname << " ======= "<<_clients[i - 1].channel <<"  ======  "<< _clients[i - 1].fd <<"  ======\n\n";
-			_clients[i - 1].channel.clear();
-			// std::cout << "\n\n===========  " << _clients[i - 1].nickname << "  leave the chanel ==============\n\n";
+			if(_clients[i - 1].channels_joined.size() > 1){
+				_clients[i -1].channels_joined.pop_back();
+				_clients[i - 1].channel = *(_clients[i - 1].channels_joined.end() - 1);
+			}
+			else
+				_clients[i - 1].channel.clear();
 
 
 //part 3 i check if he was an operator
 			std::vector<std::string>::iterator it = std::find(_channels[j].operators.begin(), _channels[j].operators.end(), _clients[i - 1].nickname);
 			if(it != _channels[j].operators.end()){
-				// std::cout << "\n\n============  he was an operator ============\n\n";
 				_channels[j].operators.erase(std::remove(_channels[j].operators.begin(), _channels[j].operators.end(), _clients[i - 1].nickname), _channels[j].operators.end());
 			}
 			return;
