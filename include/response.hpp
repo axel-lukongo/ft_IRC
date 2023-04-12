@@ -6,7 +6,7 @@
 /*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/27 14:27:00 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/12 13:27:31 by alukongo         ###   ########.fr       */
+/*   Updated: 2023/04/12 17:39:38 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@
 # define RPL_MYINFO(client, server, version, available) (":localhost 004 " + client + " " + server + " " + version + " " + available + "\r\n")
 
 // JOIN
+# define RPL_JOIN(user_id, channel) (user_id + " JOIN :#" +  channel + "\r\n")
 # define RPL_TOPIC(client, channel, topic) (":localhost 332 " + client + " " + channel + " :" + topic + "\r\n")
 # define RPL_NAMREPLY(client, channel, nickname) (":localhost 353 " + client + " = " + channel + " :" + nickname + "\r\n")
 # define RPL_ENDOFNAMES(client, channel, message) (":localhost 366 " + client + " " + channel + " :" + message + "\r\n")

@@ -28,7 +28,7 @@ struct Client {
 	std::vector<std::string> channels_banned;
 
 	std::string getName( void ) const {
-		return (username + "!" + nickname + "@" + hostname);
+		return (nickname + "!" + nickname + "@" + hostname);
 	}
 	// public:
 	// 	std::string get_nickname(){
