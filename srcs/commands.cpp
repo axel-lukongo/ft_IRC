@@ -6,7 +6,7 @@
 /*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/13 19:40:41 by alukongo         ###   ########.fr       */
+/*   Updated: 2023/04/13 21:34:10 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,6 +130,7 @@ void Server::join_the_channel(int i,bool chanel_exist, std::vector<std::string> 
 		command_split[1].erase(0,1);
 		my_chanel.name = command_split[1]; //it for add the name of the channels
 		my_chanel.operators.push_back(_clients[i - 1].nickname); // it for add the operator
+		my_chanel.invite_flag = false;
 		_channels.push_back(my_chanel); //i add in the list of channels
 	}
 	for (size_t j = 0; j < _channels.size(); j++){ //this loop it for add the user in the user in a channel
@@ -184,6 +185,18 @@ bool Server::is_banned(int i, std::string channel_name){
 }
 
 
+
+
+
+std::vector<Channel> Server::find_channels(std::string channel_name){
+	
+}
+
+
+
+
+
+
 std::string Server::topic_exist(int i){
 	std::string channel_name = _clients[i - 1].channel;
 	for(size_t j = 0; j < _channels.size(); j++){
@@ -193,6 +206,31 @@ std::string Server::topic_exist(int i){
 		}
 	}
 	return "";
+}
+
+
+
+
+
+
+
+
+
+
+
+
+bool Server::is_invite_mode(std::string client_name ,std::string channel_name){
+	for(size_t j = 0; j < _channels.size(); j++){
+		if(_channels[j].name == channel_name.erase(0,1)){
+			if(!_channels[j].invite_flag == true){
+				std::vector<std::string>::iterator it = std::find(_channels[j].invited.begin(),_channels[j].invited.end(), client_name);
+				if(it == _channels[j].invited.end())
+					return true;
+			}
+				
+		}
+	}
+	return false;
 }
 
 void	Server::join(int i, std::vector<std::string> command_split)
@@ -206,7 +244,12 @@ void	Server::join(int i, std::vector<std::string> command_split)
 			SendMessage(_clients[i - 1].fd, ERR_BANNEDFROMCHAN(_clients[i - 1].nickname, _clients[i - 1].channel)); //if he is ban i send a msg befor to return
 			return;
 		}
-		
+		if (is_invite_mode(_clients[i - 1].nickname,_clients[i - 1].channel) == true){
+			std::cout << " ==================================";
+			std::string msg = ERR_NEEDINVITE(_clients[i - 1], command_split[1]);
+			SendMessage(_clients[i - 1].fd, msg); //if he is ban i send a msg befor to return
+			return;
+		}
 	}
 
 	join_the_channel(i, chanel_exist, command_split);//this is where i going join the chanel
@@ -313,14 +356,17 @@ void Server::whois(int i, std::vector<std::string> command_split){
 
 
 
-
+// void Server::modeInvite(User *user) {
+// 	this->isInviteOnly = true;
+// 	std::string info = ":" + user->getName() + " sets mode +i " + name + "\r\n";
+// 	std::cerr << std::endl << info << std::endl << std::endl;
+// 	// broadcast_info(info);
+// }
 
 
 
 
 void Server::mode(int i, std::vector<std::string> command_split){
-
-(void) i;
 	std::vector<std::string>::iterator it;
 	for (size_t j = 0; j < _channels.size(); j++){ //this loop it for look if my user it a operators
 		if (_channels[j].name == command_split[1]){
@@ -356,6 +402,27 @@ void Server::mode(int i, std::vector<std::string> command_split){
 							_channels[x].operators.push_back(command_split[3]);
 					}
 				}
+				else if (command_split[2] == "+i"){
+					for (size_t x = 0; x < _channels.size(); x++){
+						if (_channels[x].name == command_split[1])
+							_channels[x].invite_flag = true;
+					}
+					std::string info = ":" + _clients[i - 1].getName() + " sets mode +i " + command_split[1] + "\r\n";
+					share_msg(info, command_split[1]);
+						// std::string msg1 = ":" + _clients[i - 1].hostname + " 221 " + _clients[i - 1].nickname + " +i\r\n"; 
+						// send(_clients[i - 1].fd, msg1.c_str(), msg1.length(), MSG_NOSIGNAL);
+				}
+				else if (command_split[2] == "-i"){
+					for (size_t x = 0; x < _channels.size(); x++){
+						if (_channels[x].name == command_split[1])
+							_channels[x].invite_flag = false;
+					}
+					std::string info = ":" + _clients[i - 1].getName() + " sets mode -i " + command_split[1] + "\r\n";
+					share_msg(info, command_split[1]);
+						// std::string msg1 = ":" + _clients[i - 1].hostname + " 221 " + _clients[i - 1].nickname + " +i\r\n"; 
+						// send(_clients[i - 1].fd, msg1.c_str(), msg1.length(), MSG_NOSIGNAL);
+				}
+
 				else
 					std::cout << command_split[2] << " invalid option";
 				return;
@@ -461,7 +528,6 @@ void Server::topic(int i, std::vector<std::string> command_split){
 	//step 2: check if the client is a operator, else i send ERR_CHANOPRIVSNEEDED
 			if (_channels[j].name == command_split[1]){
 				it = std::find(_channels[j].operators.begin(), _channels[j].operators.end(), _clients[i - 1].nickname);
-				// std::cout << "\n\n ===================it: " << _clients[i - 1].nickname <<" ===== "<< *it << " ====================\n\n";
 				if(it == _channels[j].operators.end()){
 					SendMessage(_clients[i - 1].fd, ERR_CHANOPRIVSNEEDED(_clients[i - 1], _channels[j].name)); //if he is ban i send a msg befor to return
 					std::string not_operator = ERR_CHANOPRIVSNEEDED(_clients[i - 1], _channels[j].name);
@@ -473,7 +539,6 @@ void Server::topic(int i, std::vector<std::string> command_split){
 	//step 3: check if the user try to creat a new topic or just try to see the topic name
 			if (command_split[2][0] == ':'){
 				//i try to creat a new topic
-				// std::cout << "\n\n===========  " << command_split.size() << "  ============\n";
 				std::string my_new_topic = "";
 				for (size_t x = 2; x < command_split.size(); x++){
 					my_new_topic += command_split[x];
@@ -484,11 +549,17 @@ void Server::topic(int i, std::vector<std::string> command_split){
 				share_topic(_channels[j].name, RPL_TOPIC(_clients[i - 1], _channels[j].name, my_new_topic));
 			}
 		}
-
 	}
-	
-	
 }
+
+
+// void Server::invite(int i, std::vector<std::string> command_split){
+// 	//part1
+	
+// 	//part2
+	
+// 	//part3
+// }
 
 //! ############### END COMMANDS ####################
 
@@ -555,6 +626,8 @@ int	Server::make_command(std::string buffer, int i)
 				part(i ,command_split);
 			else if (command_split[0] == "TOPIC")
 				topic(i, command_split);
+			// else if(command_split[0] == "INVITE")
+			// 	invite(i, command_split);
 			else if (command_split[0] == "QUIT")
 					quit(i, command_split);
 		}

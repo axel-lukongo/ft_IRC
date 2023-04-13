@@ -48,7 +48,7 @@ public:
 	int		make_command(std::string buffer, int i);
 	void	SendMessage(int fd, std::string message);
 	void	client_disconnected(int i);
-
+	std::vector<Channel>		find_channels(std::string);
 	void	pass(int, std::vector<std::string>);
 	void	nick(int, std::vector<std::string>);
 	void	user(int, std::vector<std::string>);
@@ -66,6 +66,8 @@ public:
 	void	kick(int, std::vector<std::string>);
 	void	topic(int, std::vector<std::string>);
 	void	share_topic(std::string,std::string);
+	bool	is_invite_mode(std::string,std::string);
+	// void	invite(int, std::vector<std::string>);
 	std::string	topic_exist(int i);
 	~Server();
 

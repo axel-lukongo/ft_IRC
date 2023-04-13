@@ -6,7 +6,7 @@
 /*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/27 14:27:00 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/13 18:28:18 by alukongo         ###   ########.fr       */
+/*   Updated: 2023/04/13 21:28:33 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,14 +61,14 @@
 #define ERR_NOSUCHCHANNEL(user, channel) (":" + user.getName() + " 403 " + user.nickname + " " + channel + " :No such channel\r\n")
 
 // # define ERR_NOSUCHCHANNEL(client, channel) (":localhost 403 " + client + " #" + channel + " :No such channel\r\n")
-
 # define ERR_NOTONCHANNEL(client, channel) (":localhost 442 " + client + " #" + channel + " :The user is not on this channel.\r\n")
-
 # define ERR_USERNOTINCHANNEL(client, nickname, channel) ("441 " + client + " " + nickname + " #" + channel + " :They aren't on that channel\r\n")
-
 
 //MODE
 #define ERR_CHANOPRIVSNEEDED(user, channel) (":" + user.getName() + " 482 " + user.nickname + " " + (channel) + " :You're not channel operator\r\n")
+
+//INVITE
+#define ERR_NEEDINVITE(user, name) ( ":" + user.hostname + " 473 " + user.nickname + " " + name + " :Cannot join " + name + " (+i) - you must be invited\n" )
 
 
 //TOPIC

@@ -13,6 +13,8 @@ struct Channel
 	std::vector<std::string>	banned_users;
 	std::vector<std::string>	invited;
 	std::vector<std::string>	voice;
+	bool						invite_flag;
+
 };
 
 #endif // !CHANNEL_HPP
