@@ -6,7 +6,7 @@
 /*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/12 20:16:13 by alukongo         ###   ########.fr       */
+/*   Updated: 2023/04/13 19:40:41 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,10 @@ void	Server::pass(int i, std::vector<std::string> command_split)
 		_clients[i - 1].is_connected = true;
 		SendMessage(_clients[i - 1].fd, RPL_WELCOME(_clients[i - 1].nickname, _clients[i - 1].nickname));
 	}
-	else
+	else{
 		SendMessage(_clients[i - 1].fd, ERR_PASSWDMISMATCH(_clients[i - 1].nickname));
+		_clients[i - 1].is_connected = false;
+	}
 }
 
 
@@ -182,6 +184,17 @@ bool Server::is_banned(int i, std::string channel_name){
 }
 
 
+std::string Server::topic_exist(int i){
+	std::string channel_name = _clients[i - 1].channel;
+	for(size_t j = 0; j < _channels.size(); j++){
+		if(_channels[j].name == channel_name.erase(0,1)){
+			if(!_channels[j].topic.empty())
+				return _channels[j].topic;
+		}
+	}
+	return "";
+}
+
 void	Server::join(int i, std::vector<std::string> command_split)
 {
 	std::string channel_name = command_split[1];
@@ -200,11 +213,12 @@ void	Server::join(int i, std::vector<std::string> command_split)
 	_clients[i - 1].channels_joined.push_back(command_split[1]);//this is the channel where my client is
 	std::string info = ":" + _clients[i - 1].getName() + " JOIN #" + channel_name + "\r\n";
 	SendMessage(_clients[i - 1].fd, info);
-	SendMessage(_clients[i - 1].fd, RPL_TOPIC(_clients[i - 1].nickname, _clients[i - 1].channel, "No topic is set"));
+	_clients[i - 1].channel = command_split[1];
+	std::string topic = topic_exist(i);
+	if(topic != "")
+		SendMessage(_clients[i - 1].fd, RPL_TOPIC(_clients[i - 1], _clients[i - 1].channel, topic));
 	SendMessage(_clients[i - 1].fd, RPL_NAMREPLY(_clients[i - 1].nickname, _clients[i - 1].channel, _clients[i - 1].nickname));
 	SendMessage(_clients[i - 1].fd, RPL_ENDOFNAMES(_clients[i - 1].nickname, _clients[i - 1].channel, "End of /NAMES list"));
-	_clients[i - 1].channel = command_split[1];
-	std::cout << "  \n===join ======  " << _clients[i - 1].channel << "  =============\n\n";
 }
 
 
@@ -294,7 +308,6 @@ void Server::whois(int i, std::vector<std::string> command_split){
 		}
 	}
 	SendMessage(_fds[0].fd, ERR_NOSUCHNICK(_clients[i - 1].nickname, command_split[1]));
-	// std::cout << command_split[1] <<": nick name not found\n";
 }
 
 
@@ -311,7 +324,7 @@ void Server::mode(int i, std::vector<std::string> command_split){
 	std::vector<std::string>::iterator it;
 	for (size_t j = 0; j < _channels.size(); j++){ //this loop it for look if my user it a operators
 		if (_channels[j].name == command_split[1]){
-			it = std::find(_channels[j].operators.begin(), _channels[j].operators.begin(), command_split[1]);
+			it = std::find(_channels[j].operators.begin(), _channels[j].operators.end(), command_split[1]);
 			if(it == _channels[j].operators.end()){
 				std::cout << "\n\n======= you are not a operators  =========\n\n";
 				return;
@@ -374,7 +387,6 @@ void Server::part(int i, std::vector<std::string> command_split){
 	(void) command_split;
 	std::string chanel_of_client = _clients[i - 1].channel.erase(0,1);
 	for (size_t j = 0; j < _channels.size(); j++){
-	std::cout << "  =======  "<<_channels[j].name << "  =======  " << chanel_of_client << " =======\n\n";
 		if (_channels[j].name == chanel_of_client){
 
 //part 1 i remove the user from the channel class
@@ -392,7 +404,6 @@ void Server::part(int i, std::vector<std::string> command_split){
 			else
 				_clients[i - 1].channel.clear();
 
-
 //part 3 i check if he was an operator
 			std::vector<std::string>::iterator it = std::find(_channels[j].operators.begin(), _channels[j].operators.end(), _clients[i - 1].nickname);
 			if(it != _channels[j].operators.end()){
@@ -404,6 +415,80 @@ void Server::part(int i, std::vector<std::string> command_split){
 	SendMessage(_clients[i - 1].fd, ERR_NOSUCHCHANNEL(_clients[i - 1], chanel_of_client));
 }
 
+
+void Server::quit(int i, std::vector<std::string> command_split){
+	// close(_fds[i].fd);
+	(void) command_split;
+	while (_clients[i - 1].channels_joined.size() > 0){
+		part(i, command_split);
+	}
+	_clients.erase(_clients.begin() + (i - 1));
+	// _fds[i].fd = 0;
+	std::cout << "Client " << _clients[i-1].nickname << " disconnected \n\n";
+}
+
+
+void Server::share_topic(std::string channel_name, std::string msg){
+	(void) channel_name;
+	for (size_t j = 0; j < _clients.size(); j++)
+	{
+		if (_clients[j].channel == ("#"+channel_name))
+			send(_clients[j].fd, msg.c_str(), msg.size(), MSG_NOSIGNAL);
+	}
+}
+
+
+/**
+ * @brief 
+ * 
+ * @param i 
+ * @param command_split[1]: is the name of channel that i want apply the topic;
+ * command_split[2]: is the ":";
+ * command_split[...]: the topic name
+ */
+
+void Server::topic(int i, std::vector<std::string> command_split){
+	std::vector<std::string>::iterator it;
+	for (size_t j = 0; j < _channels.size(); j++){
+			if(_channels[j].name == command_split[1].erase(0,1)){
+				if (is_banned(i, _channels[j].name) == true){
+				SendMessage(_clients[i - 1].fd, ERR_BANNEDFROMCHAN(_clients[i - 1].nickname, _clients[i - 1].channel)); //if he is ban i send a msg befor to return
+				std::string is_banned = ERR_BANNEDFROMCHAN(_clients[i - 1].nickname, _clients[i - 1].channel);
+				send(_clients[i - 1].fd, is_banned.c_str(), is_banned.size(), MSG_NOSIGNAL);
+				return;
+			}
+
+	//step 2: check if the client is a operator, else i send ERR_CHANOPRIVSNEEDED
+			if (_channels[j].name == command_split[1]){
+				it = std::find(_channels[j].operators.begin(), _channels[j].operators.end(), _clients[i - 1].nickname);
+				// std::cout << "\n\n ===================it: " << _clients[i - 1].nickname <<" ===== "<< *it << " ====================\n\n";
+				if(it == _channels[j].operators.end()){
+					SendMessage(_clients[i - 1].fd, ERR_CHANOPRIVSNEEDED(_clients[i - 1], _channels[j].name)); //if he is ban i send a msg befor to return
+					std::string not_operator = ERR_CHANOPRIVSNEEDED(_clients[i - 1], _channels[j].name);
+					send(_clients[i - 1].fd, not_operator.c_str(), not_operator.length(), MSG_NOSIGNAL);
+					return;
+				}
+			}
+
+	//step 3: check if the user try to creat a new topic or just try to see the topic name
+			if (command_split[2][0] == ':'){
+				//i try to creat a new topic
+				// std::cout << "\n\n===========  " << command_split.size() << "  ============\n";
+				std::string my_new_topic = "";
+				for (size_t x = 2; x < command_split.size(); x++){
+					my_new_topic += command_split[x];
+					my_new_topic += " ";
+				}
+				//ici je cree le nx topic
+				_channels[j].topic = my_new_topic;
+				share_topic(_channels[j].name, RPL_TOPIC(_clients[i - 1], _channels[j].name, my_new_topic));
+			}
+		}
+
+	}
+	
+	
+}
 
 //! ############### END COMMANDS ####################
 
@@ -468,11 +553,17 @@ int	Server::make_command(std::string buffer, int i)
 				mode(i, command_split);
 			else if (command_split[0] == "PART")
 				part(i ,command_split);
-			// else if (command_split[0] == "QUIT")
-			// 		client_disconnected(i);
+			else if (command_split[0] == "TOPIC")
+				topic(i, command_split);
+			else if (command_split[0] == "QUIT")
+					quit(i, command_split);
 		}
 	}
 	return (0);
 }
 
 //! ############### END MAKE_COMMAND ####################
+
+
+
+//############################## je dois faire topic ##############################

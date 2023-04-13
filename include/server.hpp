@@ -44,9 +44,10 @@ public:
 	void	infinit_loop();
 	void	new_client();
 	// bool	is_commande(std::string);
-	void	client_disconnected(int);
+	void	quit(int, std::vector<std::string>);
 	int		make_command(std::string buffer, int i);
 	void	SendMessage(int fd, std::string message);
+	void	client_disconnected(int i);
 
 	void	pass(int, std::vector<std::string>);
 	void	nick(int, std::vector<std::string>);
@@ -63,7 +64,9 @@ public:
 	void	part(int, std::vector<std::string>);
 	void	share_msg(const std::string, std::string);
 	void	kick(int, std::vector<std::string>);
-
+	void	topic(int, std::vector<std::string>);
+	void	share_topic(std::string,std::string);
+	std::string	topic_exist(int i);
 	~Server();
 
 };

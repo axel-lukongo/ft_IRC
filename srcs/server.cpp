@@ -51,6 +51,7 @@ Server::Server(std::string argv, std::string pwd) : _addrlen(sizeof(_address))
 	_fds[0].fd = _server_fd; //the fd in index 0 is the socket of my server
 	_fds[0].events = POLLIN; 
 	_nb_client++;
+	
 	infinit_loop();
 }
 
@@ -137,7 +138,7 @@ void Server::client_disconnected(int i){
 	close(_fds[i].fd);
 	_clients.erase(_clients.begin() + i );
 	_fds[i].fd = 0;
-	std::cout << "Client " << _clients[i-1].nickname << " disconnected \n\n";
+	// std::cout << "Client " << _clients[i-1].nickname << " disconnected \n\n";
 }
 
 Server::~Server()

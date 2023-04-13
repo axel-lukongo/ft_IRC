@@ -6,7 +6,7 @@
 /*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/27 14:27:00 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/12 17:39:38 by alukongo         ###   ########.fr       */
+/*   Updated: 2023/04/13 18:28:18 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@
 
 // JOIN
 # define RPL_JOIN(user_id, channel) (user_id + " JOIN :#" +  channel + "\r\n")
-# define RPL_TOPIC(client, channel, topic) (":localhost 332 " + client + " " + channel + " :" + topic + "\r\n")
+// # define RPL_TOPIC(client, channel, topic) (":localhost 332 " + client + " " + channel + " :" + topic + "\r\n")
 # define RPL_NAMREPLY(client, channel, nickname) (":localhost 353 " + client + " = " + channel + " :" + nickname + "\r\n")
 # define RPL_ENDOFNAMES(client, channel, message) (":localhost 366 " + client + " " + channel + " :" + message + "\r\n")
 
@@ -66,6 +66,13 @@
 
 # define ERR_USERNOTINCHANNEL(client, nickname, channel) ("441 " + client + " " + nickname + " #" + channel + " :They aren't on that channel\r\n")
 
-#define ERR_CHANOPRIVSNEEDED(client, channel) (":localhost 482 " + client + " #" + channel + " :You're not channel operator\r\n")
+
+//MODE
+#define ERR_CHANOPRIVSNEEDED(user, channel) (":" + user.getName() + " 482 " + user.nickname + " " + (channel) + " :You're not channel operator\r\n")
+
+
+//TOPIC
+#define RPL_TOPIC(user, channel, topic) (":" + user.getName() + " 332 " + user.nickname + " " + channel + " :" + topic + "\n")
+
 
 #endif
