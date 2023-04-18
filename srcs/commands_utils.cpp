@@ -41,7 +41,8 @@ void Server::join_the_channel(int i,bool chanel_exist, std::vector<std::string> 
  * @return false it mean the channel does not exist
  */
 bool Server::chanel_is_exist(int i, std::string command_split){
-	_clients[i - 1].channel = command_split;
+	// _clients[i - 1].channel = command_split;
+	(void)i;
 	for(size_t index = 0; index < _channels.size(); index++){ //in this loop i check if the channel already exist
 		if (_channels[index].name == command_split)
 				return true;
@@ -102,13 +103,14 @@ Channel* Server::find_channels(std::string channel_name){
 
 bool Server::client_is_invited(std::string client_name ,std::string channel_name){
 	Channel *channel_tmp = find_channels(channel_name);
+	std::cout << "======= la =======  " << channel_tmp->invite_flag << "  ================\n\n";
 	if(channel_tmp->invite_flag == true){
 		std::vector<std::string>::iterator it = std::find(channel_tmp->invited.begin(),channel_tmp->invited.end(), client_name);
 		if(it == channel_tmp->invited.end()){
-			return true;
+			return false;
 		}
 	}
-	return false;
+	return true;
 }
 
 //################################################################################
