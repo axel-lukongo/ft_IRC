@@ -102,10 +102,14 @@ Channel* Server::find_channels(std::string channel_name){
 
 
 bool Server::client_is_invited(std::string client_name ,std::string channel_name){
+		// std::cout << "======= is_inv ======= " << channel_name << " ===========\n\n";
 	Channel *channel_tmp = find_channels(channel_name);
-	std::cout << "======= la =======  " << channel_tmp->invite_flag << "  ================\n\n";
+	// if(!channel_tmp->name)
+		// return true;
+	std::cout << "======= la =======  " << _channels[0].invite_flag << "  =====  "<< channel_tmp->invite_flag << "  ================\n\n";
 	if(channel_tmp->invite_flag == true){
 		std::vector<std::string>::iterator it = std::find(channel_tmp->invited.begin(),channel_tmp->invited.end(), client_name);
+		// std::cout << "======= is_inv ======= " << *it << " ===========\n\n";
 		if(it == channel_tmp->invited.end()){
 			return false;
 		}
