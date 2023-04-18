@@ -22,11 +22,14 @@
 #include <algorithm>
 #include <signal.h>
 #include "channel.hpp"
+// #include <boost/function.hpp>
+#include <map>
 
 // extern bool server_run;
 
 class Server
 {
+typedef 					void (Server::*my_functions)(int, std::vector<std::string>);
 private:
 	std::string				_pwd;
 	int						_server_fd, _new_socket;
@@ -38,12 +41,13 @@ private:
 	int						_watch_activity;
 	int						_nb_client;
 	std::vector<Channel>	_channels;
-
+	std::map<std::string, my_functions> _my_map;
 public:
 	Server(std::string, std::string);
 	void	infinit_loop();
 	void	new_client();
 	// bool	is_commande(std::string);
+	void	init_map();
 	void	quit(int, std::vector<std::string>);
 	int		make_command(std::string buffer, int i);
 	void	SendMessage(int fd, std::string message);
@@ -58,7 +62,7 @@ public:
 	int		is_nickname_used(std::string, int);
 	bool	chanel_is_exist(int, std::string);
 	bool	is_banned(int, std::string);
-	int		ping_cmd(int, std::vector<std::string>);
+	void	ping_cmd(int, std::vector<std::string>);
 	void	whois(int, std::vector<std::string>);
 	void	mode(int, std::vector<std::string>);
 	void	part(int, std::vector<std::string>);
@@ -70,6 +74,8 @@ public:
 	void	invite(int, std::vector<std::string>);
 	bool	is_operator(std::string,std::string);
 	std::string	topic_exist(int i);
+	void	mode_for_user(std::vector<std::string>);
+	void	mode_for_channels(int ,std::vector<std::string>, std::string);
 	~Server();
 
 
