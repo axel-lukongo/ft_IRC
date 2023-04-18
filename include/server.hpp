@@ -74,7 +74,7 @@ public:
 	void	invite(int, std::vector<std::string>);
 	bool	is_operator(std::string,std::string);
 	std::string	topic_exist(int i);
-	void	mode_for_user(std::vector<std::string>);
+	void	mode_for_user(std::vector<std::string>, std::string);
 	void	mode_for_channels(int ,std::vector<std::string>, std::string);
 	~Server();
 

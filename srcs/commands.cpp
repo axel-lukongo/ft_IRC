@@ -6,7 +6,7 @@
 /*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/18 18:43:39 by alukongo         ###   ########.fr       */
+/*   Updated: 2023/04/18 19:52:45 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -240,7 +240,7 @@ void Server::mode(int i, std::vector<std::string> command_split){
 		return;
 	if(chanel_is_exist(i, channel_name) && (command_split.size() == 5 || command_split.size() == 4)){
 		if (command_split.size() == 5){
-			mode_for_user(command_split);
+			mode_for_user(command_split, channel_name);
 		}
 		else if(command_split.size() == 4){
 			mode_for_channels(i,command_split, channel_name);

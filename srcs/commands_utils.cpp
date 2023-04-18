@@ -189,29 +189,38 @@ void Server::share_topic(std::string channel_name, std::string msg){
 
 
 
-void Server::mode_for_user(std::vector<std::string> command_split){
+void Server::mode_for_user(std::vector<std::string> command_split, std::string channel_name){
 	for(size_t j = 0; j < _clients.size(); j++){ // i go throught all client
 				if (_clients[j].nickname == command_split[3]){ // i look if the client exist
 					if (command_split[2] == "+b"){ // i will add amoung the banned user
-						for (size_t x = 0; x < _channels.size(); x++){
-							if (_channels[x].name == command_split[1])
-								_channels[x].banned_users.push_back(command_split[3]);
-						}
+					Channel * tmp_channel = find_channels(channel_name);
+					tmp_channel->banned_users.push_back(command_split[3]);
+						// for (size_t x = 0; x < _channels.size(); x++){
+						// 	if (_channels[x].name == channel_name)
+						// 		_channels[x].banned_users.push_back(command_split[3]);
+						// }
 					}
 					else if (command_split[2] == "-b")
 					{
-						for (size_t x = 0; x < _channels.size(); x++){
-							if (_channels[x].name == command_split[1]){
-								std::vector<std::string>::iterator it = std::find(_channels[x].banned_users.begin(),_channels[x].banned_users.end(), _clients[j].nickname);
-								_channels[x].banned_users.erase(it);
-							}
-						}
+						Channel * tmp_channel = find_channels(channel_name);
+						std::vector<std::string>::iterator it = std::find(tmp_channel->banned_users.begin(),tmp_channel->banned_users.end(), _clients[j].nickname);
+						tmp_channel->banned_users.erase(it);
+
+						// for (size_t x = 0; x < _channels.size(); x++){
+						// 	if (_channels[x].name == channel_name){
+						// 		std::vector<std::string>::iterator it = std::find(_channels[x].banned_users.begin(),_channels[x].banned_users.end(), _clients[j].nickname);
+						// 		_channels[x].banned_users.erase(it);
+						// 	}
+						// }
 					}
 					else if (command_split[2] == "+o"){ // i will add amoung the operators
-						for (size_t x = 0; x < _channels.size(); x++){
-							if (_channels[x].name == command_split[1])
-								_channels[x].operators.push_back(command_split[3]);
-						}
+					Channel * tmp_channel = find_channels(channel_name);
+					tmp_channel->operators.push_back(command_split[3]);
+
+						// for (size_t x = 0; x < _channels.size(); x++){
+						// 	if (_channels[x].name == channel_name)
+						// 		_channels[x].operators.push_back(command_split[3]);
+						// }
 					}
 					else
 						std::cout << command_split[2] << " invalid option";
@@ -232,13 +241,13 @@ void Server::mode_for_channels(int i, std::vector<std::string> command_split, st
 	if (command_split[2] == "+i"){ 
 				Channel *tmp_channel = find_channels(channel_name);
 				tmp_channel->invite_flag = true;
-				std::string info = ":" + _clients[i - 1].getName() + " sets mode +i " + command_split[1] + "\r\n";
-				share_msg(info, command_split[1]);
+				std::string info = ":" + _clients[i - 1].getName() + " sets mode +i " + channel_name + "\r\n";
+				share_msg(info, channel_name);
 			}
 			else if (command_split[2] == "-i"){
-				Channel *tmp_channel = find_channels(command_split[1]);
+				Channel *tmp_channel = find_channels(channel_name);
 				tmp_channel->invite_flag = false;
-				std::string info = ":" + _clients[i - 1].getName() + " sets mode -i " + command_split[1] + "\r\n";
-				share_msg(info, command_split[1]);
+				std::string info = ":" + _clients[i - 1].getName() + " sets mode -i " + channel_name + "\r\n";
+				share_msg(info, channel_name);
 			}
 }
