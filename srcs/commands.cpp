@@ -6,7 +6,7 @@
 /*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/18 19:52:45 by alukongo         ###   ########.fr       */
+/*   Updated: 2023/04/19 18:06:19 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -299,10 +299,15 @@ void Server::part(int i, std::vector<std::string> command_split){
 void Server::quit(int i, std::vector<std::string> command_split){
 	// close(_fds[i].fd);
 	(void) command_split;
+	// _clients[i - 1].is_connected = false;
 	while (_clients[i - 1].channels_joined.size() > 0){
+		Channel *tmp_channel = find_channels(_clients[i - 1].channel);
+		std::vector<std::string>::iterator it = std::find(tmp_channel->users.begin(), tmp_channel->users.end(), _clients[i - 1].nickname);
+		tmp_channel->users.erase(it);
 		part(i, command_split);
 	}
 	_clients.erase(_clients.begin() + (i - 1));
+	_nb_client--;
 	// _fds[i].fd = 0;
 	std::cout << "Client " << _clients[i-1].nickname << " disconnected \n\n";
 }
@@ -394,21 +399,6 @@ void Server::invite(int i, std::vector<std::string> command_split){
 }
 
 
-// void Server::init_map(){
-// _my_map["NICK"] = &Server::nick;
-// _my_map["USER"] = &Server::user;
-// _my_map["JOIN"] = &Server::join;
-// _my_map["PRIVMSG"] = &Server::privmsg;
-// _my_map["PING"] = &Server::ping_cmd;
-// _my_map["WHOIS"] = &Server::whois;
-// _my_map["MODE"] = &Server::mode;
-// _my_map["PART"] = &Server::part;
-// _my_map["TOPIC"] = &Server::topic;
-// _my_map["INVITE"] =	 &Server::invite;
-// _my_map["QUIT"] = 	&Server::quit;
-
-// }
-
 
 //! ############### END COMMANDS ####################
 
@@ -456,10 +446,14 @@ int	Server::make_command(std::string buffer, int i)
 			pass(i, command_split);
 		if (_clients[i - 1].is_connected == true)
 		{
+			if (command_split[0] == "USER")
+				user(i, command_split);
+			else{
 				std::map<std::string, my_functions>::iterator it;
-			it = _my_map.find(command_split[0]);
-			if(it != _my_map.end())
-				(this->*it->second)(i, command_split);
+				it = _my_map.find(command_split[0]);
+				if(it != _my_map.end())
+					(this->*it->second)(i, command_split);
+			}
 		}
 	}
 	return (0);

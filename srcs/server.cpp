@@ -61,7 +61,7 @@ Server::Server(std::string argv, std::string pwd) : _addrlen(sizeof(_address))
 	}
 	_fds[0].fd = _server_fd; //the fd in index 0 is the socket of my server
 	_fds[0].events = POLLIN; 
-	_nb_client++;
+	// _nb_client++;
 	infinit_loop();
 }
 
@@ -94,7 +94,7 @@ void Server::infinit_loop()
 
 		/*in this loop i watch if one of my client send something
 		so i going check them one by one*/
-		for (size_t i = 1; i <= _clients.size(); i++) {
+		for (int i = 1; i <= _nb_client; i++) {
 			if (_fds[i].revents == POLLIN) { //here i check if on of my client try to do something
 				char buffer[512] = {0};
 				//if we POLLIN but read return 0 it mean this client is disconnect
@@ -139,6 +139,7 @@ void Server::new_client(){
 
 	_fds[_clients.size()].fd = _new_socket;
 	_fds[_clients.size()].events = POLLIN;
+	// _nb_client++;
 	std::cout << "-----------new client connected--------------\n";
 }
 

@@ -16,6 +16,6 @@ gnome-terminal -- bash -c "./ircserv $port $password; exec bash"
 sleep 1
 
 # Launch "i" instances of irssi, each in a separate terminal window, connecting to the server
-for i in {1..3}; do
+for i in {1..2}; do
   gnome-terminal -- bash -c "irssi -c localhost -p $port -w $password; exec bash"
 done
