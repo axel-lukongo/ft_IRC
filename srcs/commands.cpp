@@ -6,7 +6,7 @@
 /*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/19 18:06:19 by alukongo         ###   ########.fr       */
+/*   Updated: 2023/04/20 02:29:08 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -201,8 +201,7 @@ void	Server::ping_cmd(int i, std::vector<std::string> command_split)
 	if (command_split[0] == " ")
 		command_split[0].erase(0, 1);
 	command_split[0].insert(0, ":");
-	SendMessage(_clients[i].fd,  RPL_PONG(user_id(nickname, username), command_split[0]));
-
+	SendMessage(_clients[i - 1].fd,  RPL_PONG(user_id(nickname, username), command_split[0]));
 	// return (1);
 }
 
@@ -429,7 +428,7 @@ int	Server::make_command(std::string buffer, int i)
 	{
 		//Split the command and its arguments
 		std::vector<std::string> command_split;
-		std::string tmp;
+		std::string tmp = "";
 		for (size_t k = 0; k < command[j].size(); k++)
 		{
 			if (command[j][k] == ' ' || command[j][k] == '\r')

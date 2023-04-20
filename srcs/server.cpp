@@ -135,6 +135,8 @@ void Server::new_client(){
 	client.fd = _new_socket;
 	client.nickname = "unknown";
 	client.name = "";
+	client.is_connected = false;
+	client.is_registered = false;
 	_clients.push_back(client);
 
 	_fds[_clients.size()].fd = _new_socket;
