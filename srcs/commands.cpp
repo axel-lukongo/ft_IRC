@@ -6,7 +6,7 @@
 /*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/20 02:29:08 by alukongo         ###   ########.fr       */
+/*   Updated: 2023/04/21 12:44:47 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -361,6 +361,8 @@ void Server::topic(int i, std::vector<std::string> command_split){
 				//ici je cree le nx topic
 				_channels[j].topic = my_new_topic;
 				share_topic(_channels[j].name, RPL_TOPIC(_clients[i - 1], _channels[j].name, my_new_topic));
+				std::string msg =  RPL_TOPIC(_clients[i - 1], _channels[j].name, my_new_topic);
+				send(_clients[i - 1].fd, msg.c_str(), msg.size(), MSG_NOSIGNAL);
 			}
 		}
 	}

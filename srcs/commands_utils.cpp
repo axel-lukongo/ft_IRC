@@ -43,8 +43,8 @@ void Server::join_the_channel(int i,bool chanel_exist, std::vector<std::string> 
  * @return false it mean the channel does not exist
  */
 bool Server::chanel_is_exist(int i, std::string command_split){
-	// _clients[i - 1].channel = command_split;
 	(void)i;
+	_clients[i - 1].channel = command_split;
 	for(size_t index = 0; index < _channels.size(); index++){ //in this loop i check if the channel already exist
 		if (_channels[index].name == command_split)
 				return true;
@@ -175,9 +175,10 @@ bool Server::is_operator(std::string client_name, std::string channel_name){
 
 
 void Server::share_topic(std::string channel_name, std::string msg){
-	(void) channel_name;
+	// (void) channel_name;
 	for (size_t j = 0; j < _clients.size(); j++)
 	{
+		std::cout << " ========= "<<_clients[j].channel << " ========== " << channel_name << " ===========\n\n";
 		if (_clients[j].channel == ("#"+channel_name))
 			send(_clients[j].fd, msg.c_str(), msg.size(), MSG_NOSIGNAL);
 	}
