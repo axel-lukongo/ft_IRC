@@ -45,6 +45,8 @@ void Server::join_the_channel(int i,bool chanel_exist, std::vector<std::string> 
 bool Server::chanel_is_exist(int i, std::string command_split){
 	(void)i;
 	_clients[i - 1].channel = command_split;
+	// std::cout << " ===============  ici  =================\n\n";
+
 	for(size_t index = 0; index < _channels.size(); index++){ //in this loop i check if the channel already exist
 		if (_channels[index].name == command_split)
 				return true;

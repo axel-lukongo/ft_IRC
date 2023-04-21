@@ -6,7 +6,7 @@
 /*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/21 14:00:03 by alukongo         ###   ########.fr       */
+/*   Updated: 2023/04/21 20:11:48 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,11 @@ void	Server::user(int i, std::vector<std::string> command_split)
 		SendMessage(_clients[i - 1].fd, ERR_ALREADYREGISTRED(_clients[i - 1].nickname));
 		return ;
 	}
+	else if (command_split.size() != 5 && command_split.size() != 7){
+		std::cout << " ========= wrong number of argument =========\n\n";
+		return;
+	}
+	// std:: cout << " ============= :: " << command_split.size() << " :: ===============\n\n";
 	_clients[i - 1].username = command_split[1];
 	_clients[i - 1].hostname = "localhost";
 	_clients[i - 1].servername = command_split[3];
@@ -137,6 +142,7 @@ void	Server::join(int i, std::vector<std::string> command_split)
 	_clients[i - 1].channels_joined.push_back(command_split[1]);//this is the channel where my client is
 	std::string info = ":" + _clients[i - 1].getName() + " JOIN #" + channel_name + "\r\n";
 	SendMessage(_clients[i - 1].fd, info);
+	share_msg_chan(info, channel_name);
 	std::string topic = topic_exist(i);
 	if(topic != "")
 		SendMessage(_clients[i - 1].fd, RPL_TOPIC(_clients[i - 1], _clients[i - 1].channel, topic));
@@ -155,8 +161,8 @@ void	Server::join(int i, std::vector<std::string> command_split)
 void	Server::privmsg(int i, std::vector<std::string> command_split)
 {
 	std::string channel = command_split[1];
+	// channel = channel.erase(0,1);
 	std::string nickname = _clients[i - 1].nickname;
-
 	//take the rest of the arguments and put it in the message
 	std::string msg;
 	for (size_t j = 2; j < command_split.size(); j++)
@@ -221,6 +227,7 @@ void Server::whois(int i, std::vector<std::string> command_split){
 			std::cout << "hostname: "<<_clients[index].hostname << "\n";
 			std::cout << "nickname: "<<_clients[index].nickname << "\n";
 			std::cout << "chanel: " <<_clients[index].channel << "\n";
+			std::cout << "fd: " <<_clients[index].fd << "\n";
 			return;
 		}
 	}
@@ -247,6 +254,10 @@ void Server::mode(int i, std::vector<std::string> command_split){
 		else
 			std::cout << command_split[2] << " invalid option";
 		return;
+	}
+	if(_clients[i - 1].channel[0] != '#' && _clients[i - 1].channel.size() > 0)
+	{
+		_clients[i - 1].channel = "#"+_clients[i - 1].channel;
 	}
 }
 
@@ -303,10 +314,8 @@ void Server::quit(int i, std::vector<std::string> command_split){
 		part(i, command_split);
 	part(i, command_split);
 	close(_clients[i - 1].fd);
-	_clients.erase(_clients.begin() + (i - 1));
 	std::string msg = RPL_QUIT(_clients[i - 1], " no reason");
 	share_msg_all(msg);
-	// std::cout << "Client " << _clients[i-1].nickname << " disconnected \n\n";
 }
 
 
