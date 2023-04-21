@@ -6,7 +6,7 @@
 /*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/21 20:11:48 by alukongo         ###   ########.fr       */
+/*   Updated: 2023/04/21 21:18:23 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,7 +143,7 @@ void	Server::join(int i, std::vector<std::string> command_split)
 	std::string info = ":" + _clients[i - 1].getName() + " JOIN #" + channel_name + "\r\n";
 	SendMessage(_clients[i - 1].fd, info);
 	share_msg_chan(info, channel_name);
-	std::string topic = topic_exist(i);
+	std::string topic = topic_exist(command_split[1]);
 	if(topic != "")
 		SendMessage(_clients[i - 1].fd, RPL_TOPIC(_clients[i - 1], _clients[i - 1].channel, topic));
 	SendMessage(_clients[i - 1].fd, RPL_NAMREPLY(_clients[i - 1].nickname, _clients[i - 1].channel, _clients[i - 1].nickname));
@@ -337,41 +337,56 @@ void Server::quit(int i, std::vector<std::string> command_split){
 
 void Server::topic(int i, std::vector<std::string> command_split){
 	std::vector<std::string>::iterator it;
-	for (size_t j = 0; j < _channels.size(); j++){
-			if(_channels[j].name == command_split[1].erase(0,1)){
-				if (is_banned(i, _channels[j].name) == true){
-				SendMessage(_clients[i - 1].fd, ERR_BANNEDFROMCHAN(_clients[i - 1].nickname, _clients[i - 1].channel)); //if he is ban i send a msg befor to return
-				std::string is_banned = ERR_BANNEDFROMCHAN(_clients[i - 1].nickname, _clients[i - 1].channel);
-				send(_clients[i - 1].fd, is_banned.c_str(), is_banned.size(), MSG_NOSIGNAL);
-				return;
-			}
-
-	//step 2: check if the client is a operator, else i send ERR_CHANOPRIVSNEEDED
-			if (_channels[j].name == command_split[1]){
-				it = std::find(_channels[j].operators.begin(), _channels[j].operators.end(), _clients[i - 1].nickname);
-				if(it == _channels[j].operators.end()){
-					SendMessage(_clients[i - 1].fd, ERR_CHANOPRIVSNEEDED(_clients[i - 1], _channels[j].name)); //if he is ban i send a msg befor to return
-					std::string not_operator = ERR_CHANOPRIVSNEEDED(_clients[i - 1], _channels[j].name);
-					send(_clients[i - 1].fd, not_operator.c_str(), not_operator.length(), MSG_NOSIGNAL);
+	if(command_split.size() > 2){
+		for (size_t j = 0; j < _channels.size(); j++){
+				if(_channels[j].name == command_split[1].erase(0,1)){
+					if (is_banned(i, _channels[j].name) == true){
+					SendMessage(_clients[i - 1].fd, ERR_BANNEDFROMCHAN(_clients[i - 1].nickname, _clients[i - 1].channel)); //if he is ban i send a msg befor to return
+					std::string is_banned = ERR_BANNEDFROMCHAN(_clients[i - 1].nickname, _clients[i - 1].channel);
+					send(_clients[i - 1].fd, is_banned.c_str(), is_banned.size(), MSG_NOSIGNAL);
 					return;
 				}
-			}
 
-	//step 3: check if the user try to creat a new topic or just try to see the topic name
-			if (command_split[2][0] == ':'){
-				//i try to creat a new topic
-				std::string my_new_topic = "";
-				for (size_t x = 2; x < command_split.size(); x++){
-					my_new_topic += command_split[x];
-					my_new_topic += " ";
+		//step 2: check if the client is a operator, else i send ERR_CHANOPRIVSNEEDED
+				if (_channels[j].name == command_split[1]){
+					it = std::find(_channels[j].operators.begin(), _channels[j].operators.end(), _clients[i - 1].nickname);
+					if(it == _channels[j].operators.end()){
+						SendMessage(_clients[i - 1].fd, ERR_CHANOPRIVSNEEDED(_clients[i - 1], _channels[j].name)); //if he is ban i send a msg befor to return
+						std::string not_operator = ERR_CHANOPRIVSNEEDED(_clients[i - 1], _channels[j].name);
+						send(_clients[i - 1].fd, not_operator.c_str(), not_operator.length(), MSG_NOSIGNAL);
+						return;
+					}
 				}
-				//ici je cree le nx topic
-				_channels[j].topic = my_new_topic;
-				share_topic(_channels[j].name, RPL_TOPIC(_clients[i - 1], _channels[j].name, my_new_topic));
-				std::string msg =  RPL_TOPIC(_clients[i - 1], _channels[j].name, my_new_topic);
-				send(_clients[i - 1].fd, msg.c_str(), msg.size(), MSG_NOSIGNAL);
+
+		//step 3: check if the user try to creat a new topic or just try to see the topic name
+				if (command_split[2][0] == ':'){
+					//i concat the message
+					std::string my_new_topic = "";
+					for (size_t x = 2; x < command_split.size(); x++){
+						my_new_topic += command_split[x];
+						my_new_topic += " ";
+					}
+					//ici je cree le nouveau topic
+					_channels[j].topic = my_new_topic;
+					share_topic(_channels[j].name, RPL_TOPIC(_clients[i - 1], _channels[j].name, my_new_topic));
+					std::string msg =  RPL_TOPIC(_clients[i - 1], _channels[j].name, my_new_topic);
+					send(_clients[i - 1].fd, msg.c_str(), msg.size(), MSG_NOSIGNAL);
+				}
+				else{
+					std::string msg =  RPL_TOPIC(_clients[i - 1], _channels[j].name, _channels[j].topic);
+				}
 			}
 		}
+	}
+	else if (command_split.size() == 2){
+	//part 4 je affiche simplement le topic
+		std::string chan_name = command_split[1];
+		Channel *tmp_channel = find_channels(chan_name.erase(0,1));
+		if(tmp_channel != &_channels[_channels.size()]){
+			SendMessage(_clients[i - 1].fd, RPL_TOPIC(_clients[i - 1], tmp_channel->name, tmp_channel->topic));
+		}
+		else
+			SendMessage(_clients[i - 1].fd, ERR_NOSUCHCHANNEL(_clients[i - 1], command_split[1]));
 	}
 }
 

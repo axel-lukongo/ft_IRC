@@ -83,10 +83,11 @@ bool Server::is_banned(int i, std::string channel_name){
 
 
 
-std::string Server::topic_exist(int i){
-	std::string channel_name = _clients[i - 1].channel;
+std::string Server::topic_exist(std::string channel_name){
+	std::string tmp_channel_name = channel_name;
+	tmp_channel_name = tmp_channel_name.erase(0,1);
 	for(size_t j = 0; j < _channels.size(); j++){
-		if(_channels[j].name == channel_name.erase(0,1)){
+		if(_channels[j].name == tmp_channel_name){
 			if(!_channels[j].topic.empty())
 				return _channels[j].topic;
 		}
