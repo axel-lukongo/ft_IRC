@@ -6,7 +6,7 @@
 /*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/21 12:44:47 by alukongo         ###   ########.fr       */
+/*   Updated: 2023/04/21 14:00:03 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -269,15 +269,17 @@ void Server::part(int i, std::vector<std::string> command_split){
 
 
 //part 2 i send message to the all user in the channel
-			share_msg(info, chanel_of_client);
+			share_msg_chan(info, chanel_of_client);
 			send(_clients[i - 1].fd, info.c_str(), info.length(), MSG_NOSIGNAL);
 			_channels[j].users.erase(std::remove(_channels[j].users.begin(), _channels[j].users.end(), _clients[i - 1].nickname), _channels[j].users.end());
 			if(_clients[i - 1].channels_joined.size() > 1){
 				_clients[i -1].channels_joined.pop_back();
 				_clients[i - 1].channel = *(_clients[i - 1].channels_joined.end() - 1);
 			}
-			else
+			else{
+				_clients[i -1].channels_joined.pop_back();
 				_clients[i - 1].channel.clear();
+			}
 
 //part 3 i check if he was an operator
 			std::vector<std::string>::iterator it = std::find(_channels[j].operators.begin(), _channels[j].operators.end(), _clients[i - 1].nickname);
@@ -295,20 +297,16 @@ void Server::part(int i, std::vector<std::string> command_split){
 
 //? QUIT #######################################################################################
 
+//remarque: the infinit loop apear only when i disconnect a client who are not the last
 void Server::quit(int i, std::vector<std::string> command_split){
-	// close(_fds[i].fd);
-	(void) command_split;
-	// _clients[i - 1].is_connected = false;
-	while (_clients[i - 1].channels_joined.size() > 0){
-		Channel *tmp_channel = find_channels(_clients[i - 1].channel);
-		std::vector<std::string>::iterator it = std::find(tmp_channel->users.begin(), tmp_channel->users.end(), _clients[i - 1].nickname);
-		tmp_channel->users.erase(it);
+	while (_clients[i - 1].channels_joined.size() > 1)
 		part(i, command_split);
-	}
+	part(i, command_split);
+	close(_clients[i - 1].fd);
 	_clients.erase(_clients.begin() + (i - 1));
-	_nb_client--;
-	// _fds[i].fd = 0;
-	std::cout << "Client " << _clients[i-1].nickname << " disconnected \n\n";
+	std::string msg = RPL_QUIT(_clients[i - 1], " no reason");
+	share_msg_all(msg);
+	// std::cout << "Client " << _clients[i-1].nickname << " disconnected \n\n";
 }
 
 

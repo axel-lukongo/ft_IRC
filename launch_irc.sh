@@ -16,6 +16,6 @@ gnome-terminal -- bash -c "valgrind --track-origins=yes ./ircserv $port $passwor
 sleep 1
 
 # Launch "i" instances of irssi, each in a separate terminal window, connecting to the server
-for i in {1..2}; do
+for i in {1..4}; do
   gnome-terminal -- bash -c "irssi -c localhost -p $port -w $password; exec bash"
 done

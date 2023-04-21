@@ -136,7 +136,7 @@ bool Server::client_is_invited(std::string client_name ,std::string channel_name
 
 
 
-void Server::share_msg(const std::string info, std::string channel_name) {
+void Server::share_msg_chan(const std::string info, std::string channel_name) {
 	(void) channel_name;
 	for (size_t j = 0; j < _clients.size(); j++)
 	{
@@ -145,6 +145,18 @@ void Server::share_msg(const std::string info, std::string channel_name) {
 	}
 }
 
+
+
+//################################################################################
+
+
+
+void Server::share_msg_all(const std::string info) {
+	for (size_t j = 0; j < _clients.size(); j++)
+	{
+		send(_clients[j].fd, info.c_str(), info.size(), MSG_NOSIGNAL);
+	}
+}
 
 
 
@@ -243,12 +255,12 @@ void Server::mode_for_channels(int i, std::vector<std::string> command_split, st
 				Channel *tmp_channel = find_channels(channel_name);
 				tmp_channel->invite_flag = true;
 				std::string info = ":" + _clients[i - 1].getName() + " sets mode +i " + channel_name + "\r\n";
-				share_msg(info, channel_name);
+				share_msg_chan(info, channel_name);
 			}
 			else if (command_split[2] == "-i"){
 				Channel *tmp_channel = find_channels(channel_name);
 				tmp_channel->invite_flag = false;
 				std::string info = ":" + _clients[i - 1].getName() + " sets mode -i " + channel_name + "\r\n";
-				share_msg(info, channel_name);
+				share_msg_chan(info, channel_name);
 			}
 }

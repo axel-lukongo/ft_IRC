@@ -100,7 +100,7 @@ void Server::infinit_loop()
 				//if we POLLIN but read return 0 it mean this client is disconnect
 				std::cout << GREEN "[CLIENT] << " << RESET;
 				if ((_valread = recv(_fds[i].fd , buffer, 512, 0)) == 0) {
-					client_disconnected(i);
+					// client_disconnected(i);
 					continue; /*(continute) it a keyword who allow us to jump directely
 					to the next iteration without to executate the continuation of the code*/ 
 				}

@@ -6,7 +6,7 @@
 /*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/27 14:27:00 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/19 14:14:05 by alukongo         ###   ########.fr       */
+/*   Updated: 2023/04/21 13:30:45 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,9 @@
 
 //TOPIC
 #define RPL_TOPIC(user, channel, topic) (":" + user.getName() + " 332 " + user.nickname + " " + channel + " :" + topic + "\n")
+
+//QUIT
+# define RPL_QUIT(user, reason) (user.getName() + " QUIT :Quit: " + reason + "\r\n")
 
 
 #endif
