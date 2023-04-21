@@ -6,7 +6,7 @@
 /*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/21 21:18:23 by alukongo         ###   ########.fr       */
+/*   Updated: 2023/04/22 01:08:47 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,6 +138,10 @@ void	Server::join(int i, std::vector<std::string> command_split)
 		}
 	}
 
+
+	// _clients[i - 1].channel = channel_name;
+
+
 	join_the_channel(i, chanel_exist, command_split);//this is where i going join the chanel
 	_clients[i - 1].channels_joined.push_back(command_split[1]);//this is the channel where my client is
 	std::string info = ":" + _clients[i - 1].getName() + " JOIN #" + channel_name + "\r\n";
@@ -149,6 +153,7 @@ void	Server::join(int i, std::vector<std::string> command_split)
 	SendMessage(_clients[i - 1].fd, RPL_NAMREPLY(_clients[i - 1].nickname, _clients[i - 1].channel, _clients[i - 1].nickname));
 	SendMessage(_clients[i - 1].fd, RPL_ENDOFNAMES(_clients[i - 1].nickname, _clients[i - 1].channel, "End of /NAMES list"));
 	_clients[i - 1].channel = command_split[1];
+
 }
 
 
@@ -245,10 +250,11 @@ void Server::mode(int i, std::vector<std::string> command_split){
 	if (is_operator(_clients[i - 1].nickname, channel_name.erase(0,1)) == false)
 		return;
 	if(chanel_is_exist(i, channel_name) && (command_split.size() == 5 || command_split.size() == 4)){
+		//with netcat you have to put a space after you right your mode 
 		if (command_split.size() == 5){
 			mode_for_user(command_split, channel_name);
 		}
-		else if(command_split.size() == 4){
+		else if(command_split.size() == 4){ 
 			mode_for_channels(i,command_split, channel_name);
 		}
 		else
@@ -258,6 +264,7 @@ void Server::mode(int i, std::vector<std::string> command_split){
 	if(_clients[i - 1].channel[0] != '#' && _clients[i - 1].channel.size() > 0)
 	{
 		_clients[i - 1].channel = "#"+_clients[i - 1].channel;
+		
 	}
 }
 
