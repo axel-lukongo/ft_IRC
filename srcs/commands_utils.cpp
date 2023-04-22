@@ -12,13 +12,14 @@
  */
 void Server::join_the_channel(int i,bool chanel_exist, std::vector<std::string> command_split){
 	Channel my_chanel;
-	if(chanel_exist == false){//if the channel don't exist yet
 		command_split[1].erase(0,1);
+	if(chanel_exist == false){//if the channel don't exist yet
 		my_chanel.name = command_split[1]; //it for add the name of the channels
 		my_chanel.operators.push_back(_clients[i - 1].nickname); // it for add the operator
 		my_chanel.invite_flag = false;
 		_channels.push_back(my_chanel); //i add in the list of channels
 	}
+
 	for (size_t j = 0; j < _channels.size(); j++){ //this loop it for add the user in the user in a channel
 		if (_channels[j].name == command_split[1]){
 			_channels[j].users.push_back(_clients[i - 1].nickname);
@@ -45,7 +46,6 @@ void Server::join_the_channel(int i,bool chanel_exist, std::vector<std::string> 
 bool Server::chanel_is_exist(int i, std::string command_split){
 	(void)i;
 	_clients[i - 1].channel = command_split;
-	// std::cout << " ===============  ici1  =================\n\n";
 
 	for(size_t index = 0; index < _channels.size(); index++){ //in this loop i check if the channel already exist
 		if (_channels[index].name == command_split)

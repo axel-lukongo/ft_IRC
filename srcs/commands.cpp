@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ngobert <ngobert@student.42.fr>            +#+  +:+       +#+        */
+/*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/22 13:00:35 by ngobert          ###   ########.fr       */
+/*   Updated: 2023/04/22 16:48:39 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,7 +145,6 @@ void	Server::join(int i, std::vector<std::string> command_split)
 			return;
 		}
 	}
-
 	join_the_channel(i, chanel_exist, command_split);//this is where i going join the chanel
 	_clients[i - 1].channels_joined.push_back(command_split[1]);//this is the channel where my client is
 	std::string info = ":" + _clients[i - 1].getName() + " JOIN #" + channel_name + "\r\n";
@@ -324,6 +323,7 @@ void Server::quit(int i, std::vector<std::string> command_split){
 	while (_clients[i - 1].channels_joined.size() > 1)
 		part(i, command_split);
 	part(i, command_split);
+	// std::cout << " ======== dans quit ====== " << _clients[i - 1].fd << " ===== " << _fds[i].fd << " =========\n\n";
 	close(_clients[i - 1].fd);
 	std::string msg = RPL_QUIT(_clients[i - 1], " no reason");
 	share_msg_all(msg);
@@ -434,41 +434,50 @@ void Server::invite(int i, std::vector<std::string> command_split){
 
 //? KICK #########################################################################################
 
-void Server::kick(int i, std::vector<std::string> command_split)
-{
-	std::string banner = _clients[i - 1].nickname;
-	std::string channel = command_split[1];
-	std::string to_ban = command_split[2];
-	std::vector<std::string>::iterator to_kick;
-	int	x = 0;
-	// take the rest of the arguments and put it in the message
-	std::string tmp;
-	for (size_t j = 3; j < command_split.size(); j++)
-	{
-		tmp += command_split[j];
-		tmp += " ";
-	}
-	// Kick command if the user is a operator
-	if (std::find(_channels[i - 1].operators.begin(), _channels[i - 1].operators.end(), _clients[i - 1].nickname) != _channels[i - 1].operators.end())
-	{
-		std::cout << CYAN << "YOU OPERATOR" << RESET << std::endl;
+
+void Server::kick(int i, std::vector<std::string> command_split){
+	if(command_split.size() > 4){
+		//STEP 1: i check if the actual user is an operator of the channel
+		std::string channel_name = command_split[1];
+		if (is_operator(_clients[i - 1].nickname, channel_name.erase(0,1)) == false)
+		return;
+
+		//STEP 2: i check if the user is in the channel
+		Channel * tmp_channel = find_channels(channel_name);
+		std::vector<std::string>::iterator it = std::find(tmp_channel->users.begin(), tmp_channel->users.end(), command_split[2]);
+		if(it == tmp_channel->users.end()){
+			SendMessage(_clients[i - 1].fd, ERR_NOSUCHNICK(_clients[i - 1].nickname, command_split[2]));
+			return;
+		}
+		
+		//STEP 3: i take the reason
+		std::string tmp;
+		for (size_t j = 3; j < command_split.size(); j++)
+		{
+			tmp += command_split[j];
+			tmp += " ";
+		}
+		
+		//STEP 4: i send the RPL 
 		for (size_t j = 0; j < _clients.size(); j++)
 		{
-			if (_clients[j].nickname == to_ban)
+			if (_clients[j].nickname == command_split[2])
 			{
-				to_kick = std::find(_channels[i - 1].users.begin(), _channels[i - 1].users.end(), _clients[j].nickname);
-				// std::string info = ":" + _clients[i - 1].getName() + " PART #" + channel + " " + to_ban +"\r\n";
-				_channels[i - 1].users.erase(to_kick);
-				SendMessage(_clients[j].fd, RPL_KICK(banner, _clients[i - 1].username,channel, to_ban, tmp));
+				std::vector<std::string>::iterator to_kick = std::find(tmp_channel->users.begin(), tmp_channel->users.end(), command_split[2]);
+				tmp_channel->users.erase(to_kick);
+				std::string msg = RPL_KICK(_clients[i - 1].nickname, _clients[i - 1].username,command_split[1], command_split[2], tmp);
+				share_msg_chan(msg, channel_name);
+				SendMessage(_clients[j].fd, msg);
 				_clients[j].channel = "";
-				x = 1;
-				break;
+				return;
 			}
 		}
-		if (x == 0)
-			SendMessage(_clients[i - 1].fd, ERR_NOSUCHNICK(banner, to_ban));
+		std::cout << " ============ client not found =============\n";
 	}
+	else
+		SendMessage(_clients[i - 1].fd, ERR_NEEDMOREPARAMS(_clients[i - 1].nickname, command_split[0]));
 }
+
 
 //! ############### END COMMANDS ####################
 

@@ -5,20 +5,8 @@
 
 Server::Server(std::string argv, std::string pwd) : _addrlen(sizeof(_address))
 {
-	_my_map["NICK"] = &Server::nick;
-	_my_map["USER"] = &Server::user;
-	_my_map["JOIN"] = &Server::join;
-	_my_map["PRIVMSG"] = &Server::privmsg;
-	_my_map["PING"] = &Server::ping_cmd;
-	_my_map["WHOIS"] = &Server::whois;
-	_my_map["MODE"] = &Server::mode;
-	_my_map["PART"] = &Server::part;
-	_my_map["TOPIC"] = &Server::topic;
-	_my_map["INVITE"] =	 &Server::invite;
-	_my_map["QUIT"] = 	&Server::quit;
-	_my_map["KICK"] = 	&Server::kick;
-	_pwd = pwd;
 	_nb_client = 0;
+
 
 	if ((_server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
 	{
@@ -63,6 +51,19 @@ Server::Server(std::string argv, std::string pwd) : _addrlen(sizeof(_address))
 	_fds[0].fd = _server_fd; //the fd in index 0 is the socket of my server
 	_fds[0].events = POLLIN; 
 	// _nb_client++;
+		_my_map["NICK"] = &Server::nick;
+	_my_map["USER"] = &Server::user;
+	_my_map["JOIN"] = &Server::join;
+	_my_map["PRIVMSG"] = &Server::privmsg;
+	_my_map["PING"] = &Server::ping_cmd;
+	_my_map["WHOIS"] = &Server::whois;
+	_my_map["MODE"] = &Server::mode;
+	_my_map["PART"] = &Server::part;
+	_my_map["TOPIC"] = &Server::topic;
+	_my_map["INVITE"] =	 &Server::invite;
+	_my_map["QUIT"] = 	&Server::quit;
+	_my_map["KICK"] = 	&Server::kick;
+	_pwd = pwd;
 	infinit_loop();
 }
 
@@ -136,6 +137,9 @@ void Server::new_client(){
 	client.fd = _new_socket;
 	client.nickname = "unknown";
 	client.name = "";
+	client.username = "alukongo";
+	client.hostname = "localhost";
+	client.servername = "irc_server";
 	client.is_connected = false;
 	client.is_registered = false;
 	_clients.push_back(client);
