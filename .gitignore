@@ -1,3 +1,5 @@
 *.o
 ircserv
 *.d
+.vscode
+.DS_Store

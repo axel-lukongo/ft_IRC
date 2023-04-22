@@ -68,7 +68,7 @@ public:
 	void	part(int, std::vector<std::string>);
 	void	share_msg_chan(const std::string, std::string);
 	void	share_msg_all(const std::string);
-	// void	kick(int, std::vector<std::string>);
+	void	kick(int, std::vector<std::string>);
 	void	topic(int, std::vector<std::string>);
 	void	share_topic(std::string,std::string);
 	bool	client_is_invited(std::string,std::string);

@@ -16,6 +16,7 @@ Server::Server(std::string argv, std::string pwd) : _addrlen(sizeof(_address))
 	_my_map["TOPIC"] = &Server::topic;
 	_my_map["INVITE"] =	 &Server::invite;
 	_my_map["QUIT"] = 	&Server::quit;
+	_my_map["KICK"] = 	&Server::kick;
 	_pwd = pwd;
 	_nb_client = 0;
 

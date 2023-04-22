@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ngobert <ngobert@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/22 03:57:07 by alukongo         ###   ########.fr       */
+/*   Updated: 2023/04/22 13:00:35 by ngobert          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -432,7 +432,43 @@ void Server::invite(int i, std::vector<std::string> command_split){
 	tmp_channel->invited.push_back(name_of_client);
 }
 
+//? KICK #########################################################################################
 
+void Server::kick(int i, std::vector<std::string> command_split)
+{
+	std::string banner = _clients[i - 1].nickname;
+	std::string channel = command_split[1];
+	std::string to_ban = command_split[2];
+	std::vector<std::string>::iterator to_kick;
+	int	x = 0;
+	// take the rest of the arguments and put it in the message
+	std::string tmp;
+	for (size_t j = 3; j < command_split.size(); j++)
+	{
+		tmp += command_split[j];
+		tmp += " ";
+	}
+	// Kick command if the user is a operator
+	if (std::find(_channels[i - 1].operators.begin(), _channels[i - 1].operators.end(), _clients[i - 1].nickname) != _channels[i - 1].operators.end())
+	{
+		std::cout << CYAN << "YOU OPERATOR" << RESET << std::endl;
+		for (size_t j = 0; j < _clients.size(); j++)
+		{
+			if (_clients[j].nickname == to_ban)
+			{
+				to_kick = std::find(_channels[i - 1].users.begin(), _channels[i - 1].users.end(), _clients[j].nickname);
+				// std::string info = ":" + _clients[i - 1].getName() + " PART #" + channel + " " + to_ban +"\r\n";
+				_channels[i - 1].users.erase(to_kick);
+				SendMessage(_clients[j].fd, RPL_KICK(banner, _clients[i - 1].username,channel, to_ban, tmp));
+				_clients[j].channel = "";
+				x = 1;
+				break;
+			}
+		}
+		if (x == 0)
+			SendMessage(_clients[i - 1].fd, ERR_NOSUCHNICK(banner, to_ban));
+	}
+}
 
 //! ############### END COMMANDS ####################
 

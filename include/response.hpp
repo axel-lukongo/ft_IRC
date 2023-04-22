@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ngobert <ngobert@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/27 14:27:00 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/21 13:30:45 by alukongo         ###   ########.fr       */
+/*   Updated: 2023/04/22 12:23:50 by ngobert          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,8 +53,6 @@
 
 #define ERR_NOSUCHNICK(client, target) ("401 " + client + " " + target + " :No such nick/channel\r\n")
 
-//KICK
-#define RPL_KICK(user_id, channel, kicked, reason) (user_id + " KICK #" + channel + " " + kicked + " " + reason + "\r\n")
 
 # define ERR_NEEDMOREPARAMS(client, command) (":localhost 461 " + client + " " + command + " :Not enough parameters.\r\n")
 
@@ -77,5 +75,7 @@
 //QUIT
 # define RPL_QUIT(user, reason) (user.getName() + " QUIT :Quit: " + reason + "\r\n")
 
+// KICK
+# define RPL_KICK(nick, username, channel, target, message) (":" + nick + "!" + username + "@localhost KICK " + channel + " " + target + " " + message + "\r\n")
 
 #endif
