@@ -6,7 +6,7 @@
 /*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/22 01:08:47 by alukongo         ###   ########.fr       */
+/*   Updated: 2023/04/22 03:57:07 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,18 +129,22 @@ void	Server::join(int i, std::vector<std::string> command_split)
 	if(chanel_exist == true){
 		if (is_banned(i, channel_name) == true){
 			SendMessage(_clients[i - 1].fd, ERR_BANNEDFROMCHAN(_clients[i - 1].nickname, _clients[i - 1].channel)); //if he is ban i send a msg befor to return
+			if(_clients[i - 1].channels_joined.size() > 0)
+				_clients[i - 1].channel = _clients[i - 1].channels_joined[_clients[i - 1].channels_joined.size()-1];
+			else
+				_clients[i - 1].channel = "";
 			return;
 		}
 		if (client_is_invited(_clients[i - 1].nickname, channel_name) == false){ //only if the chan is in invite mode
 			std::string msg = ERR_NEEDINVITE(_clients[i - 1], command_split[1]);
 			SendMessage(_clients[i - 1].fd, msg); //if he is not invite i send this
+			if(_clients[i - 1].channels_joined.size() > 0)
+				_clients[i - 1].channel = _clients[i - 1].channels_joined[_clients[i - 1].channels_joined.size()-1];
+			else
+				_clients[i - 1].channel = "";
 			return;
 		}
 	}
-
-
-	// _clients[i - 1].channel = channel_name;
-
 
 	join_the_channel(i, chanel_exist, command_split);//this is where i going join the chanel
 	_clients[i - 1].channels_joined.push_back(command_split[1]);//this is the channel where my client is

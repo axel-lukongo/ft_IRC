@@ -45,7 +45,7 @@ void Server::join_the_channel(int i,bool chanel_exist, std::vector<std::string> 
 bool Server::chanel_is_exist(int i, std::string command_split){
 	(void)i;
 	_clients[i - 1].channel = command_split;
-	std::cout << " ===============  ici1  =================\n\n";
+	// std::cout << " ===============  ici1  =================\n\n";
 
 	for(size_t index = 0; index < _channels.size(); index++){ //in this loop i check if the channel already exist
 		if (_channels[index].name == command_split)
@@ -124,7 +124,7 @@ bool Server::client_is_invited(std::string client_name ,std::string channel_name
 	Channel *channel_tmp = find_channels(channel_name);
 
 	if(channel_tmp->invite_flag == true){
-	std::cout << " =========== ::  :: =============\n\n";
+	// std::cout << " =========== ::  :: =============\n\n";
 		std::vector<std::string>::iterator it = std::find(channel_tmp->invited.begin(),channel_tmp->invited.end(), client_name);
 		if(it == channel_tmp->invited.end()){
 			return false;
@@ -195,7 +195,7 @@ void Server::share_topic(std::string channel_name, std::string msg){
 	// (void) channel_name;
 	for (size_t j = 0; j < _clients.size(); j++)
 	{
-		std::cout << " ========= "<<_clients[j].channel << " ========== " << channel_name << " ===========\n\n";
+		// std::cout << " ========= "<<_clients[j].channel << " ========== " << channel_name << " ===========\n\n";
 		if (_clients[j].channel == ("#"+channel_name))
 			send(_clients[j].fd, msg.c_str(), msg.size(), MSG_NOSIGNAL);
 	}
@@ -256,7 +256,7 @@ void Server::mode_for_user(std::vector<std::string> command_split, std::string c
 
 
 void Server::mode_for_channels(int i, std::vector<std::string> command_split, std::string channel_name){
-			std::cout << " =========== ::  :: =============\n\n";
+			// std::cout << " =========== ::  :: =============\n\n";
 	if (command_split[2] == "+i"){ 
 				Channel *tmp_channel = find_channels(channel_name);
 				tmp_channel->invite_flag = true;
