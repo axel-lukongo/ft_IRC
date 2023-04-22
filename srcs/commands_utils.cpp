@@ -213,32 +213,16 @@ void Server::mode_for_user(std::vector<std::string> command_split, std::string c
 					if (command_split[2] == "+b"){ // i will add amoung the banned user
 					Channel * tmp_channel = find_channels(channel_name);
 					tmp_channel->banned_users.push_back(command_split[3]);
-						// for (size_t x = 0; x < _channels.size(); x++){
-						// 	if (_channels[x].name == channel_name)
-						// 		_channels[x].banned_users.push_back(command_split[3]);
-						// }
 					}
 					else if (command_split[2] == "-b")
 					{
 						Channel * tmp_channel = find_channels(channel_name);
 						std::vector<std::string>::iterator it = std::find(tmp_channel->banned_users.begin(),tmp_channel->banned_users.end(), _clients[j].nickname);
 						tmp_channel->banned_users.erase(it);
-
-						// for (size_t x = 0; x < _channels.size(); x++){
-						// 	if (_channels[x].name == channel_name){
-						// 		std::vector<std::string>::iterator it = std::find(_channels[x].banned_users.begin(),_channels[x].banned_users.end(), _clients[j].nickname);
-						// 		_channels[x].banned_users.erase(it);
-						// 	}
-						// }
 					}
 					else if (command_split[2] == "+o"){ // i will add amoung the operators
 					Channel * tmp_channel = find_channels(channel_name);
 					tmp_channel->operators.push_back(command_split[3]);
-
-						// for (size_t x = 0; x < _channels.size(); x++){
-						// 	if (_channels[x].name == channel_name)
-						// 		_channels[x].operators.push_back(command_split[3]);
-						// }
 					}
 					else
 						std::cout << command_split[2] << " invalid option";
