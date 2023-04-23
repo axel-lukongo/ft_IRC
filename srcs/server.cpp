@@ -102,7 +102,7 @@ void Server::infinit_loop()
 				//if we POLLIN but read return 0 it mean this client is disconnect
 				std::cout << GREEN "[CLIENT] << " << RESET;
 				if ((_valread = recv(_fds[i].fd , buffer, 512, 0)) == 0) {
-					// client_disconnected(i);
+					client_disconnected(i);
 					continue; /*(continute) it a keyword who allow us to jump directely
 					to the next iteration without to executate the continuation of the code*/ 
 				}
@@ -153,10 +153,11 @@ void Server::new_client(){
 
 
 void Server::client_disconnected(int i){
-	close(_fds[i].fd);
-	_clients.erase(_clients.begin() + i );
-	_fds[i].fd = 0;
-	// std::cout << "Client " << _clients[i-1].nickname << " disconnected \n\n";
+	std::cout << "\n======== user: " << _clients[i - 1].nickname << " has been disconnected =======\n\n";
+	std::vector<std::string> command_split;
+	while (_clients[i - 1].channels_joined.size() > 1)
+		part(i, command_split);
+	close(_clients[i - 1].fd);
 }
 
 Server::~Server()
