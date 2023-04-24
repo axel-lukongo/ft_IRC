@@ -78,6 +78,7 @@ public:
 	void	share_topic(std::string,std::string);
 	bool	client_is_invited(std::string,std::string);
 	void	invite(int, std::vector<std::string>);
+	void	notice(int, std::vector<std::string>);
 	bool	is_operator(std::string,std::string);
 	std::string	topic_exist(std::string);
 	void	mode_for_user(std::vector<std::string>, std::string);

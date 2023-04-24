@@ -65,6 +65,7 @@ void Server::run(std::string argv, std::string pwd)
 	_my_map["INVITE"] =	 &Server::invite;
 	_my_map["QUIT"] = 	&Server::quit;
 	_my_map["KICK"] = 	&Server::kick;
+	_my_map["NOTICE"] = &Server::notice;
 	_pwd = pwd;
 	infinit_loop();
 }

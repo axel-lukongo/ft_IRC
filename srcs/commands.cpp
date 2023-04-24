@@ -6,7 +6,7 @@
 /*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/24 14:35:23 by alukongo         ###   ########.fr       */
+/*   Updated: 2023/04/24 20:58:11 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,7 +173,7 @@ void	Server::join(int i, std::vector<std::string> command_split)
 void	Server::privmsg(int i, std::vector<std::string> command_split)
 {
 	std::string channel = command_split[1];
-	// channel = channel.erase(0,1);
+	std::string chan_name = command_split[1];
 	std::string nickname = _clients[i - 1].nickname;
 	//take the rest of the arguments and put it in the message
 	std::string msg;
@@ -184,21 +184,32 @@ void	Server::privmsg(int i, std::vector<std::string> command_split)
 	}
 	if (command_split[1][0] == '#') // here i look if i send the msg to a chanel
 	{
+		if(find_channels(chan_name.erase(0,1)) == &_channels[_channels.size()]){
+			SendMessage(_clients[i - 1].fd, ERR_NOSUCHCHANNEL(_clients[i - 1], channel));
+			return;
+		}
 		if(_clients[i - 1].channel == channel){
 			for (size_t j = 0; j < _clients.size(); j++)
 			{
-				if (_clients[j].channel == channel && _clients[j].nickname != nickname)
+				if (_clients[j].channel == channel && _clients[j].nickname != nickname){
 					SendMessage(_clients[j].fd, RPL_PRIVMSG(nickname, channel, msg));
+					return;
+				}
 			}
 		}
+		else
+			SendMessage(_clients[i - 1].fd, ERR_USERNOTINCHANNEL(_clients[i - 1].nickname, _clients[i - 1].nickname, channel));
 	}
 	else // send a message to another client
 	{
 		for (size_t j = 0; j < _clients.size(); j++)
 		{
-			if (_clients[j].nickname == command_split[1])
+			if (_clients[j].nickname == command_split[1]){
 				SendMessage(_clients[j].fd, RPL_PRIVMSG(nickname, _clients[j].nickname , msg));
+				return;
+			}
 		}
+		SendMessage(_clients[i - 1].fd, ERR_NOSUCHNICK(nickname, channel));
 	}
 }
 
@@ -481,6 +492,33 @@ void Server::kick(int i, std::vector<std::string> command_split){
 	else
 		SendMessage(_clients[i - 1].fd, ERR_NEEDMOREPARAMS(_clients[i - 1].nickname, command_split[0]));
 }
+
+
+
+
+void	Server::notice(int i, std::vector<std::string> command_split)
+{
+	if (command_split.size() > 2)
+	{
+		std::string tmp;
+		for (size_t j = 2; j < command_split.size(); j++)
+		{
+			tmp += command_split[j];
+			tmp += " ";
+		}
+		std::string msg = RPL_NOTICE(_clients[i - 1].nickname, command_split[1], tmp);
+		for(size_t j = 0; j < _clients.size(); j++){
+			if(_clients[j].nickname == command_split[1]){
+				SendMessage(_clients[j].fd, msg);
+				break;
+			}
+		}
+	}
+	else
+		SendMessage(_clients[i - 1].fd, ERR_NEEDMOREPARAMS(_clients[i - 1].nickname, command_split[0]));
+}
+
+
 
 
 //! ############### END COMMANDS ####################
