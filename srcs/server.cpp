@@ -7,7 +7,7 @@ void Server::run(std::string argv, std::string pwd)
 {
 	_nb_client = 0;
 
-	if ((_server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
+	if ((_server_fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0)) == 0)
 	{
 		perror("In socket");
 		exit(EXIT_FAILURE);
