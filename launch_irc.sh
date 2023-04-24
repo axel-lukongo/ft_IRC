@@ -10,7 +10,7 @@ port=$1
 password=$2
 
 # Launch the IRC server
-gnome-terminal -- bash -c "valgrind --track-origins=yes ./ircserv $port $password; exec bash"
+gnome-terminal -- bash -c "valgrind ./ircserv $port $password; exec bash"
 
 # Wait for the server to start
 sleep 1

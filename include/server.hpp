@@ -42,12 +42,17 @@ private:
 	int						_nb_client;
 	std::vector<Channel>	_channels;
 	std::map<std::string, my_functions> _my_map;
+	// std::string				av_one, av_two;
 public:
-	Server(std::string, std::string);
+	Server(): _addrlen(sizeof(_address)){
+
+	}
+	
+	void	run(std::string,std::string);
 	void	infinit_loop();
 	void	new_client();
 	// bool	is_commande(std::string);
-	void	init_map();
+	// void	init_map();
 	void	quit(int, std::vector<std::string>);
 	int		make_command(std::string buffer, int i);
 	void	SendMessage(int fd, std::string message);

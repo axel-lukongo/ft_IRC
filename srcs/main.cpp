@@ -14,6 +14,7 @@ void signal_sigint(int sig){
 
 int main(int argc, char const **argv)
 {
+	Server server;
 	try{
 		signal(SIGINT, signal_sigint);
 		signal(SIGPIPE, signal_sigint);
@@ -21,11 +22,13 @@ int main(int argc, char const **argv)
 		if(argc != 3) //later we have to change by if(argc != 3)
 			std::cout << "!!server_IRC <port>!!\n";
 		else
-			Server Server(argv[1], argv[2]);
+			server.run(argv[1], argv[2]);
+			// Server * server = Server(argv[1], argv[2]);
 	}
 	catch (const my_execption & e)
 	{
 		std::cout << e.what() << std::endl;
-		return (1);
+		
+		// return (1);
 	}
 }

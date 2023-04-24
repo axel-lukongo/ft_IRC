@@ -6,7 +6,7 @@
 /*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/22 16:48:39 by alukongo         ###   ########.fr       */
+/*   Updated: 2023/04/24 14:35:23 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,6 +122,10 @@ void	Server::user(int i, std::vector<std::string> command_split)
 
 void	Server::join(int i, std::vector<std::string> command_split)
 {
+	if(command_split[1][0] != '#'){
+		SendMessage(_clients[i - 1].fd, ERR_NOSUCHCHANNEL(_clients[i - 1], command_split[1]));
+		return;
+	}
 	std::string channel_name = command_split[1];
 	channel_name.erase(0,1); //it just for erase the "#" because it creat some for my comparaisons
 	bool chanel_exist = chanel_is_exist(i, channel_name); //a bool for verify if the chanel already exist

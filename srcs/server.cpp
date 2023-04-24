@@ -3,10 +3,9 @@
 
 //! ############### CONSTRUCTOR ####################
 
-Server::Server(std::string argv, std::string pwd) : _addrlen(sizeof(_address))
+void Server::run(std::string argv, std::string pwd)
 {
 	_nb_client = 0;
-
 
 	if ((_server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
 	{
@@ -24,6 +23,7 @@ Server::Server(std::string argv, std::string pwd) : _addrlen(sizeof(_address))
 	 * setsockopt: this fonction it for appli the SO_REUSEADDR on my server_fd
 	 */
 	if (setsockopt(_server_fd, SOL_SOCKET, SO_REUSEADDR , &opt, sizeof(opt))) {
+		close(_server_fd);
 		perror("setsockopt failed");
 		exit(EXIT_FAILURE);
 	}
@@ -38,6 +38,7 @@ Server::Server(std::string argv, std::string pwd) : _addrlen(sizeof(_address))
 	//we associate the socket with our address
 	if (bind(_server_fd, (struct sockaddr *)&_address, sizeof(_address)) < 0)
 	{
+		close(_server_fd);
 		perror("In bind");
 		exit(EXIT_FAILURE);
 	}
@@ -45,6 +46,7 @@ Server::Server(std::string argv, std::string pwd) : _addrlen(sizeof(_address))
 	int nb_connexion = 10;
 	if (listen(_server_fd, nb_connexion) < 0) //we lestening the information who will come on this socket
 	{
+		close(_server_fd);
 		perror("In listen");
 		exit(EXIT_FAILURE);
 	}
@@ -162,4 +164,8 @@ void Server::client_disconnected(int i){
 
 Server::~Server()
 {
+	for (size_t j = 0; j < _clients.size(); j++){
+		close(_clients[j].fd);
+	}
+	close(_server_fd);
 }
