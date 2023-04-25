@@ -4,7 +4,7 @@ RM = rm -f
 CXXFLAGS = -Wall -Werror -Wextra -g -std=c++98
 CPPFLAGS = -MMD
 
-SRCS = srcs/main.cpp srcs/server.cpp srcs/commands.cpp srcs/utils.cpp srcs/commands_utils.cpp
+SRCS = srcs/main.cpp srcs/server.cpp srcs/commands.cpp srcs/utils.cpp srcs/commands_utils.cpp srcs/bonus.cpp
 
 OBJS = $(SRCS:.cpp=.o)
 DEPS = $(OBJS:.o=.d)

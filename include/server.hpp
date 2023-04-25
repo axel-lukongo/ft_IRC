@@ -83,9 +83,8 @@ public:
 	std::string	topic_exist(std::string);
 	void	mode_for_user(std::vector<std::string>, std::string);
 	void	mode_for_channels(int ,std::vector<std::string>, std::string);
+	void	bot(int, std::string );
 	~Server();
-
-
 };
 
 

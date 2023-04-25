@@ -6,7 +6,7 @@
 /*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/24 20:58:11 by alukongo         ###   ########.fr       */
+/*   Updated: 2023/04/25 02:58:35 by alukongo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -199,6 +199,9 @@ void	Server::privmsg(int i, std::vector<std::string> command_split)
 		}
 		else
 			SendMessage(_clients[i - 1].fd, ERR_USERNOTINCHANNEL(_clients[i - 1].nickname, _clients[i - 1].nickname, channel));
+	}
+	else if(command_split[1] == "bot"){
+		bot(i, msg);
 	}
 	else // send a message to another client
 	{
