@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alukongo <alukongo@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ngobert <ngobert@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 14:09:59 by ngobert           #+#    #+#             */
-/*   Updated: 2023/04/25 02:58:35 by alukongo         ###   ########.fr       */
+/*   Updated: 2023/04/25 17:11:21 by ngobert          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -170,55 +170,85 @@ void	Server::join(int i, std::vector<std::string> command_split)
 
 //? PRIVMSG #######################################################################################
 
-void	Server::privmsg(int i, std::vector<std::string> command_split)
+// void	Server::privmsg(int i, std::vector<std::string> command_split)
+// {
+// 	std::string channel = command_split[1];
+// 	std::string chan_name = command_split[1];
+// 	std::string nickname = _clients[i - 1].nickname;
+// 	//take the rest of the arguments and put it in the message
+// 	std::string msg;
+// 	for (size_t j = 2; j < command_split.size(); j++)
+// 	{
+// 		msg += command_split[j];
+// 		msg += " ";
+// 	}
+// 	if (command_split[1][0] == '#') // here i look if i send the msg to a chanel
+// 	{
+// 		if(find_channels(chan_name.erase(0,1)) == &_channels[_channels.size()]){
+// 			SendMessage(_clients[i - 1].fd, ERR_NOSUCHCHANNEL(_clients[i - 1], channel));
+// 			return;
+// 		}
+// 		if(_clients[i - 1].channel == channel){
+// 			for (size_t j = 0; j < _clients.size(); j++)
+// 			{
+// 				if (_clients[j].channel == channel && _clients[j].nickname != nickname){
+// 					SendMessage(_clients[j].fd, RPL_PRIVMSG(nickname, channel, msg));
+// 					return;
+// 				}
+// 			}
+// 		}
+// 		else
+// 			SendMessage(_clients[i - 1].fd, ERR_USERNOTINCHANNEL(_clients[i - 1].nickname, _clients[i - 1].nickname, channel));
+// 	}
+// 	else if(command_split[1] == "bot"){
+// 		bot(i, msg);
+// 	}
+// 	else // send a message to another client
+// 	{
+// 		for (size_t j = 0; j < _clients.size(); j++)
+// 		{
+// 			if (_clients[j].nickname == command_split[1]){
+// 				SendMessage(_clients[j].fd, RPL_PRIVMSG(nickname, _clients[j].nickname , msg));
+// 				return;
+// 			}
+// 		}
+// 		SendMessage(_clients[i - 1].fd, ERR_NOSUCHNICK(nickname, channel));
+// 	}
+// }
+
+
+
+void    Server::privmsg(int i, std::vector<std::string> command_split)
 {
-	std::string channel = command_split[1];
-	std::string chan_name = command_split[1];
-	std::string nickname = _clients[i - 1].nickname;
-	//take the rest of the arguments and put it in the message
-	std::string msg;
-	for (size_t j = 2; j < command_split.size(); j++)
-	{
-		msg += command_split[j];
-		msg += " ";
-	}
-	if (command_split[1][0] == '#') // here i look if i send the msg to a chanel
-	{
-		if(find_channels(chan_name.erase(0,1)) == &_channels[_channels.size()]){
-			SendMessage(_clients[i - 1].fd, ERR_NOSUCHCHANNEL(_clients[i - 1], channel));
-			return;
-		}
-		if(_clients[i - 1].channel == channel){
-			for (size_t j = 0; j < _clients.size(); j++)
-			{
-				if (_clients[j].channel == channel && _clients[j].nickname != nickname){
-					SendMessage(_clients[j].fd, RPL_PRIVMSG(nickname, channel, msg));
-					return;
-				}
-			}
-		}
-		else
-			SendMessage(_clients[i - 1].fd, ERR_USERNOTINCHANNEL(_clients[i - 1].nickname, _clients[i - 1].nickname, channel));
-	}
-	else if(command_split[1] == "bot"){
-		bot(i, msg);
-	}
-	else // send a message to another client
-	{
-		for (size_t j = 0; j < _clients.size(); j++)
-		{
-			if (_clients[j].nickname == command_split[1]){
-				SendMessage(_clients[j].fd, RPL_PRIVMSG(nickname, _clients[j].nickname , msg));
-				return;
-			}
-		}
-		SendMessage(_clients[i - 1].fd, ERR_NOSUCHNICK(nickname, channel));
-	}
+    std::string channel = command_split[1];
+    // channel = channel.erase(0,1);
+    std::string nickname = _clients[i - 1].nickname;
+    //take the rest of the arguments and put it in the message
+    std::string msg;
+    for (size_t j = 2; j < command_split.size(); j++)
+    {
+        msg += command_split[j];
+        msg += " ";
+    }
+    if (command_split[1][0] == '#') // here i look if i send the msg to a chanel
+    {
+        if(_clients[i - 1].channel == channel){
+            for (size_t j = 0; j < _clients.size(); j++)
+            {
+                if (_clients[j].channel == channel && _clients[j].nickname != nickname)
+                    SendMessage(_clients[j].fd, RPL_PRIVMSG(nickname, channel, msg));
+            }
+        }
+    }
+    else // send a message to another client
+    {
+        for (size_t j = 0; j < _clients.size(); j++)
+        {
+            if (_clients[j].nickname == command_split[1])
+                SendMessage(_clients[j].fd, RPL_PRIVMSG(nickname, _clients[j].nickname , msg));
+        }
+    }
 }
-
-
-
-
 
 
 
