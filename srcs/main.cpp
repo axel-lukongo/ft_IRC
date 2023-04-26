@@ -12,6 +12,21 @@ void signal_sigint(int sig){
 	// server_run = false;
 }
 
+bool check_if_port_valid(std::string port)
+{
+	int i = 0;
+	while (port[i])
+	{
+		if (!isdigit(port[i]))
+			return false;
+		i++;
+	}
+	int port_int = atoi(port.c_str());
+	if (port_int < 1024 || port_int > 65535)
+		return false;
+	return true;
+}
+
 int main(int argc, char const **argv)
 {
 	Server server;
@@ -22,7 +37,14 @@ int main(int argc, char const **argv)
 		if(argc != 3) //later we have to change by if(argc != 3)
 			std::cout << "!!server_IRC <port>!!\n";
 		else
+		{
+			if (!check_if_port_valid(argv[1]))
+			{
+				std::cout << "!!port invalid!!\n";
+				return (1);
+			}
 			server.run(argv[1], argv[2]);
+		}
 			// Server * server = Server(argv[1], argv[2]);
 	}
 	catch (const my_execption & e)
