@@ -1,0 +1,4 @@
+/!\ NE PAS OUBLIER QUE A LA FIN DES STRINGS ENVOYE PAR IRSSI YA \r\n DONC SI CA MARCHE PAS CEST NORMAL FAUT JUSTE L'ENLEVER /!\
+
+ Pour les channels,
+	- Keep track de qui est admin i guess ? mais on le fait directement dans la structure de client donc osef jimagine...
