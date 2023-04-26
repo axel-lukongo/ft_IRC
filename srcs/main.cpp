@@ -29,6 +29,11 @@ bool check_if_port_valid(std::string port)
 
 int main(int argc, char const **argv)
 {
+	if (argv[1] && !check_if_port_valid(argv[1]))
+	{
+		std::cout << "!!port invalid!!\n";
+		return (1);
+	}
 	Server server;
 	try{
 		signal(SIGINT, signal_sigint);
@@ -38,11 +43,6 @@ int main(int argc, char const **argv)
 			std::cout << "!!server_IRC <port>!!\n";
 		else
 		{
-			if (!check_if_port_valid(argv[1]))
-			{
-				std::cout << "!!port invalid!!\n";
-				return (1);
-			}
 			server.run(argv[1], argv[2]);
 		}
 			// Server * server = Server(argv[1], argv[2]);
